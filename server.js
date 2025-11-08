@@ -1,5 +1,5 @@
 // ==============================
-// Inventory Management System API
+// Inventory Management System API (No /api prefix)
 // Node.js + Express + MongoDB Atlas
 // ==============================
 
@@ -40,7 +40,7 @@ app.get('/', (req, res) => {
 });
 
 // Create an item
-app.post('/api/items', async (req, res) => {
+app.post('/items', async (req, res) => {
   try {
     const item = new Item(req.body);
     await item.save();
@@ -51,7 +51,7 @@ app.post('/api/items', async (req, res) => {
 });
 
 // Read all items
-app.get('/api/items', async (req, res) => {
+app.get('/items', async (req, res) => {
   try {
     const items = await Item.find().sort({ createdAt: -1 });
     res.json(items);
@@ -61,7 +61,7 @@ app.get('/api/items', async (req, res) => {
 });
 
 // Read one item
-app.get('/api/items/:id', async (req, res) => {
+app.get('/items/:id', async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Item not found' });
@@ -72,7 +72,7 @@ app.get('/api/items/:id', async (req, res) => {
 });
 
 // Update item
-app.put('/api/items/:id', async (req, res) => {
+app.put('/items/:id', async (req, res) => {
   try {
     const item = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!item) return res.status(404).json({ message: 'Item not found' });
@@ -83,7 +83,7 @@ app.put('/api/items/:id', async (req, res) => {
 });
 
 // Delete item
-app.delete('/api/items/:id', async (req, res) => {
+app.delete('/items/:id', async (req, res) => {
   try {
     const item = await Item.findByIdAndDelete(req.params.id);
     if (!item) return res.status(404).json({ message: 'Item not found' });
@@ -103,5 +103,5 @@ async function startServer() {
     console.error('❌ Failed to connect:', err.message);
   }
 }
-//this is a comment
+
 startServer();
