@@ -1,5 +1,5 @@
 // ==============================
-// Inventory Management System API (No /api prefix)
+// Inventory Management System API
 // Node.js + Express + MongoDB Atlas
 // ==============================
 
