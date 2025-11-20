@@ -1,5 +1,5 @@
 // ==============================
-// Inventory API (Vercel-Compatible & Localhost)
+// Inventory API 
 // Node.js + Express + MongoDB Atlas
 // ==============================
 
@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 //===========================
-// MongoDB Connection (1-time only)
+// MongoDB Connection 
 //===========================
 let isConnected = false;
 
@@ -51,7 +51,7 @@ const itemSchema = new mongoose.Schema({
 const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
 
 //===========================
-// ROUTES (root-level endpoints)
+// ROUTES
 //===========================
 app.get("/", (req, res) => {
   res.send("📦 Inventory API is running!");
@@ -134,8 +134,21 @@ app.get("/suppliers", async (req, res) => {
   }
 });
 
+
+// --- CATEGORIES ---
+app.get("/categories", async (req, res) => {
+  await connectToDatabase();
+  try {
+    const categories = await Item.distinct("category");
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
 //===========================
-// Localhost listener (optional)
+// Localhost
 //===========================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Local server running on http://localhost:${PORT}`));
