@@ -146,6 +146,47 @@ app.get("/categories", async (req, res) => {
   }
 });
 
+// --- INVENTORY SUMMARY / REPORTS ---
+app.get("/reports/inventory", async (req, res) => {
+  await connectToDatabase();
+  try {
+    const items = await Item.find().populate("supplier");
+
+    const totalItems = items.length;
+    const totalStock = items.reduce((sum, item) => sum + item.stock, 0);
+    const totalValue = items.reduce((sum, item) => sum + item.stock * item.price, 0);
+
+    const byCategory = {};
+    items.forEach(item => {
+      if (!byCategory[item.category]) {
+        byCategory[item.category] = { count: 0, totalStock: 0, totalValue: 0 };
+      }
+      byCategory[item.category].count += 1;
+      byCategory[item.category].totalStock += item.stock;
+      byCategory[item.category].totalValue += item.stock * item.price;
+    });
+
+    const categorySummary = Object.keys(byCategory).map(cat => ({
+      _id: cat,
+      count: byCategory[cat].count,
+      totalStock: byCategory[cat].totalStock,
+      totalValue: byCategory[cat].totalValue,
+    }));
+
+    const lowStock = items.filter(item => item.stock <= 5);
+
+    res.json({
+      totalItems,
+      totalStock,
+      totalValue,
+      byCategory: categorySummary,
+      lowStock,
+      lowStockThreshold: 5,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 //===========================
 // Localhost
