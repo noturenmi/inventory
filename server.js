@@ -57,7 +57,7 @@ const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
 
 // Root
 app.get("/", (req, res) => {
-  res.send("📦 Inventory API is running on Vercel!");
+  res.send("📦 Inventory API is running!");
 });
 
 // --- ITEMS ---
