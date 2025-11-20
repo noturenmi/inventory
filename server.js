@@ -1,15 +1,38 @@
+// ==============================
+// Vercel-Compatible Inventory API (root-level endpoints)
+// Node.js + Express + MongoDB Atlas
+// ==============================
+
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
+// Create Express app
 const app = express();
-const PORT = process.env.PORT || 3000;
-
 app.use(cors());
 app.use(express.json());
 
+//===========================
+// MongoDB Connection (1-time only)
+//===========================
+let isConnected = false;
+
+async function connectToDatabase() {
+  if (isConnected) return;
+
+  try {
+    const db = await mongoose.connect(process.env.MONGODB_URI);
+    isConnected = db.connections[0].readyState === 1;
+    console.log("📡 MongoDB Connected.");
+  } catch (err) {
+    console.error("❌ MongoDB Connection Error:", err);
+  }
+}
+
+//===========================
 // MODELS
+//===========================
 const supplierSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   contact: String,
@@ -17,7 +40,7 @@ const supplierSchema = new mongoose.Schema({
   email: String,
   address: String,
 });
-const Supplier = mongoose.model("Supplier", supplierSchema);
+const Supplier = mongoose.models.Supplier || mongoose.model("Supplier", supplierSchema);
 
 const itemSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -26,16 +49,20 @@ const itemSchema = new mongoose.Schema({
   price: { type: Number, default: 0 },
   supplier: { type: mongoose.Schema.Types.ObjectId, ref: "Supplier" },
 });
-const Item = mongoose.model("Item", itemSchema);
+const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
+
+//===========================
+// ROUTES (root-level)
+//===========================
 
 // Root
 app.get("/", (req, res) => {
-  res.send("📦 Inventory API is running!");
+  res.send("📦 Inventory API is running on Vercel!");
 });
 
-// --- 7 Endpoints ---
-// 1. Create Item
+// --- ITEMS ---
 app.post("/items", async (req, res) => {
+  await connectToDatabase();
   try {
     const item = new Item(req.body);
     await item.save();
@@ -45,8 +72,8 @@ app.post("/items", async (req, res) => {
   }
 });
 
-// 2. Get All Items
 app.get("/items", async (req, res) => {
+  await connectToDatabase();
   try {
     const items = await Item.find().populate("supplier");
     res.json(items);
@@ -55,8 +82,8 @@ app.get("/items", async (req, res) => {
   }
 });
 
-// 3. Get Single Item
 app.get("/items/:id", async (req, res) => {
+  await connectToDatabase();
   try {
     const item = await Item.findById(req.params.id).populate("supplier");
     if (!item) return res.status(404).json({ message: "Item not found" });
@@ -66,8 +93,8 @@ app.get("/items/:id", async (req, res) => {
   }
 });
 
-// 4. Update Item
 app.put("/items/:id", async (req, res) => {
+  await connectToDatabase();
   try {
     const item = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!item) return res.status(404).json({ message: "Item not found" });
@@ -77,8 +104,8 @@ app.put("/items/:id", async (req, res) => {
   }
 });
 
-// 5. Delete Item
 app.delete("/items/:id", async (req, res) => {
+  await connectToDatabase();
   try {
     const item = await Item.findByIdAndDelete(req.params.id);
     if (!item) return res.status(404).json({ message: "Item not found" });
@@ -88,8 +115,9 @@ app.delete("/items/:id", async (req, res) => {
   }
 });
 
-// 6. Create Supplier
+// --- SUPPLIERS ---
 app.post("/suppliers", async (req, res) => {
+  await connectToDatabase();
   try {
     const supplier = new Supplier(req.body);
     await supplier.save();
@@ -99,8 +127,8 @@ app.post("/suppliers", async (req, res) => {
   }
 });
 
-// 7. Get All Suppliers
 app.get("/suppliers", async (req, res) => {
+  await connectToDatabase();
   try {
     const suppliers = await Supplier.find();
     res.json(suppliers);
@@ -109,13 +137,7 @@ app.get("/suppliers", async (req, res) => {
   }
 });
 
-// DB Connection
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log("📡 Connected to MongoDB Atlas");
-    app.listen(PORT, () =>
-      console.log(`🚀 Server running on http://localhost:${PORT}`)
-    );
-  })
-  .catch((err) => console.error(err));
+//===========================
+// Export app for Vercel serverless
+//===========================
+module.exports = app;
