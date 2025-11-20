@@ -1,5 +1,5 @@
 // ==============================
-// Vercel-Compatible Inventory API (root-level endpoints)
+// Inventory API (Local + Vercel Compatible)
 // Node.js + Express + MongoDB Atlas
 // ==============================
 
@@ -13,26 +13,33 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-//===========================
+// ===========================
 // MongoDB Connection (1-time only)
-//===========================
+// ===========================
 let isConnected = false;
 
 async function connectToDatabase() {
   if (isConnected) return;
+  if (!process.env.MONGODB_URI) {
+    throw new Error("❌ MONGODB_URI not set in .env");
+  }
 
   try {
-    const db = await mongoose.connect(process.env.MONGODB_URI);
+    const db = await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     isConnected = db.connections[0].readyState === 1;
     console.log("📡 MongoDB Connected.");
   } catch (err) {
     console.error("❌ MongoDB Connection Error:", err);
+    throw err; // propagate error
   }
 }
 
-//===========================
+// ===========================
 // MODELS
-//===========================
+// ===========================
 const supplierSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   contact: String,
@@ -51,9 +58,9 @@ const itemSchema = new mongoose.Schema({
 });
 const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
 
-//===========================
+// ===========================
 // ROUTES (root-level)
-//===========================
+// ===========================
 
 // Root
 app.get("/", (req, res) => {
@@ -137,7 +144,21 @@ app.get("/suppliers", async (req, res) => {
   }
 });
 
-//===========================
-// Export app for Vercel serverless
-//===========================
+// ===========================
+// Local Server Start
+// ===========================
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  connectToDatabase()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`🚀 Local server running on http://localhost:${PORT}`);
+      });
+    })
+    .catch((err) => console.error("❌ Failed to start server:", err));
+}
+
+// ===========================
+// Export app for Vercel
+// ===========================
 module.exports = app;
