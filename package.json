@@ -15,6 +15,14 @@
     "corss": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "mongoose": "^8.19.3"
-  }
+    "mongoose": "^8.20.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noturenmi/inventory.git"
+  },
+  "bugs": {
+    "url": "https://github.com/noturenmi/inventory/issues"
+  },
+  "homepage": "https://github.com/noturenmi/inventory#readme"
 }
