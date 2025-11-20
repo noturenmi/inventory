@@ -1,5 +1,5 @@
 // ==============================
-// Inventory API (Local + Vercel Compatible)
+// Inventory API (Vercel-Compatible & Localhost)
 // Node.js + Express + MongoDB Atlas
 // ==============================
 
@@ -8,38 +8,30 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
-// Create Express app
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ===========================
+//===========================
 // MongoDB Connection (1-time only)
-// ===========================
+//===========================
 let isConnected = false;
 
 async function connectToDatabase() {
   if (isConnected) return;
-  if (!process.env.MONGODB_URI) {
-    throw new Error("❌ MONGODB_URI not set in .env");
-  }
 
   try {
-    const db = await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const db = await mongoose.connect(process.env.MONGODB_URI);
     isConnected = db.connections[0].readyState === 1;
     console.log("📡 MongoDB Connected.");
   } catch (err) {
     console.error("❌ MongoDB Connection Error:", err);
-    throw err; // propagate error
   }
 }
 
-// ===========================
+//===========================
 // MODELS
-// ===========================
+//===========================
 const supplierSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   contact: String,
@@ -58,11 +50,9 @@ const itemSchema = new mongoose.Schema({
 });
 const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
 
-// ===========================
-// ROUTES (root-level)
-// ===========================
-
-// Root
+//===========================
+// ROUTES (root-level endpoints)
+//===========================
 app.get("/", (req, res) => {
   res.send("📦 Inventory API is running!");
 });
@@ -144,21 +134,13 @@ app.get("/suppliers", async (req, res) => {
   }
 });
 
-// ===========================
-// Local Server Start
-// ===========================
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
-  connectToDatabase()
-    .then(() => {
-      app.listen(PORT, () => {
-        console.log(`🚀 Local server running on http://localhost:${PORT}`);
-      });
-    })
-    .catch((err) => console.error("❌ Failed to start server:", err));
-}
+//===========================
+// Localhost listener (optional)
+//===========================
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Local server running on http://localhost:${PORT}`));
 
-// ===========================
-// Export app for Vercel
-// ===========================
+//===========================
+// Export app for Vercel serverless
+//===========================
 module.exports = app;
