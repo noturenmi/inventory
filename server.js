@@ -111,7 +111,7 @@ app.get("/suppliers", async (req, res) => {
 
 // DB Connection
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("📡 Connected to MongoDB Atlas");
     app.listen(PORT, () =>
