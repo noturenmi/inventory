@@ -215,6 +215,14 @@ app.get(`${apiPrefix}/reports/inventory`, async (req, res) => {
 });
 
 //===========================
+// Local Development Listener
+//===========================
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`🚀 Local server running on http://localhost:${PORT}`));
+}
+
+//===========================
 // Export for Vercel
 //===========================
 module.exports = app;
