@@ -9,7 +9,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
-const swaggerSpecs = require("./swagger"); // your swagger config
+const swaggerJsDoc = require("swagger-jsdoc");
 
 const app = express();
 app.use(cors());
@@ -21,23 +21,30 @@ app.use(express.json());
 const apiPrefix = "/api/v1";
 
 //===========================
-// Root endpoint
+// Swagger Setup
 //===========================
-app.get("/", (req, res) => {
-  res.send("📦 Inventory API is running!");
-});
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.3",
+    info: {
+      title: "Inventory API",
+      version: "1.0.0",
+      description: "Inventory management API using Node.js, Express, and MongoDB",
+    },
+    servers: [
+      { url: "http://localhost:3000" },
+      { url: "https://zentiels-inventory.vercel.app" },
+    ],
+  },
+  apis: ["./server.js"], // Swagger reads JSDoc comments from this file
+};
+const swaggerSpecs = swaggerJsDoc(swaggerOptions);
 
-//===========================
-// Serve Swagger JSON
-//===========================
 app.get(`${apiPrefix}/swagger.json`, (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.send(swaggerSpecs);
 });
 
-//===========================
-// Swagger UI
-//===========================
 app.use(
   "/api-docs",
   swaggerUi.serve,
@@ -87,34 +94,43 @@ const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
 // ROUTES
 //===========================
 
-// ---------- ITEMS ----------
+/**
+ * @swagger
+ * tags:
+ *   - name: Items
+ *     description: Operations about inventory items
+ *   - name: Suppliers
+ *     description: Operations about suppliers
+ *   - name: Categories
+ *     description: Get distinct item categories
+ *   - name: Reports
+ *     description: Inventory summary reports
+ */
+
 /**
  * @swagger
  * /api/v1/items:
  *   get:
  *     summary: Get all items
+ *     tags: [Items]
  *     responses:
  *       200:
  *         description: List of items
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Item'
  *   post:
  *     summary: Add a new item
+ *     tags: [Items]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               category:
- *                 type: string
- *               stock:
- *                 type: number
- *               price:
- *                 type: number
- *               supplier:
- *                 type: string
+ *             $ref: '#/components/schemas/ItemInput'
  *     responses:
  *       201:
  *         description: Item created
@@ -129,7 +145,6 @@ app.post(`${apiPrefix}/items`, async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
-
 app.get(`${apiPrefix}/items`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -140,6 +155,58 @@ app.get(`${apiPrefix}/items`, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/v1/items/{id}:
+ *   get:
+ *     summary: Get item by ID
+ *     tags: [Items]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Item details
+ *       404:
+ *         description: Item not found
+ *   put:
+ *     summary: Update item by ID
+ *     tags: [Items]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ItemInput'
+ *     responses:
+ *       200:
+ *         description: Item updated
+ *       404:
+ *         description: Item not found
+ *   delete:
+ *     summary: Delete item by ID
+ *     tags: [Items]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Item deleted
+ *       404:
+ *         description: Item not found
+ */
 app.get(`${apiPrefix}/items/:id`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -150,7 +217,6 @@ app.get(`${apiPrefix}/items/:id`, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 app.put(`${apiPrefix}/items/:id`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -161,7 +227,6 @@ app.put(`${apiPrefix}/items/:id`, async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
-
 app.delete(`${apiPrefix}/items/:id`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -174,6 +239,22 @@ app.delete(`${apiPrefix}/items/:id`, async (req, res) => {
 });
 
 // ---------- SUPPLIERS ----------
+/**
+ * @swagger
+ * /api/v1/suppliers:
+ *   get:
+ *     summary: Get all suppliers
+ *     tags: [Suppliers]
+ *   post:
+ *     summary: Add a new supplier
+ *     tags: [Suppliers]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SupplierInput'
+ */
 app.post(`${apiPrefix}/suppliers`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -184,7 +265,6 @@ app.post(`${apiPrefix}/suppliers`, async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
-
 app.get(`${apiPrefix}/suppliers`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -196,6 +276,13 @@ app.get(`${apiPrefix}/suppliers`, async (req, res) => {
 });
 
 // ---------- CATEGORIES ----------
+/**
+ * @swagger
+ * /api/v1/categories:
+ *   get:
+ *     summary: Get distinct item categories
+ *     tags: [Categories]
+ */
 app.get(`${apiPrefix}/categories`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -207,6 +294,13 @@ app.get(`${apiPrefix}/categories`, async (req, res) => {
 });
 
 // ---------- INVENTORY REPORT ----------
+/**
+ * @swagger
+ * /api/v1/reports/inventory:
+ *   get:
+ *     summary: Get inventory summary report
+ *     tags: [Reports]
+ */
 app.get(`${apiPrefix}/reports/inventory`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -244,6 +338,75 @@ app.get(`${apiPrefix}/reports/inventory`, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+//===========================
+// Components for Swagger
+//===========================
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Item:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         name:
+ *           type: string
+ *         category:
+ *           type: string
+ *         stock:
+ *           type: integer
+ *         price:
+ *           type: number
+ *         supplier:
+ *           $ref: '#/components/schemas/Supplier'
+ *     ItemInput:
+ *       type: object
+ *       required:
+ *         - name
+ *       properties:
+ *         name:
+ *           type: string
+ *         category:
+ *           type: string
+ *         stock:
+ *           type: integer
+ *         price:
+ *           type: number
+ *         supplier:
+ *           type: string
+ *     Supplier:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         name:
+ *           type: string
+ *         contact:
+ *           type: string
+ *         phone:
+ *           type: string
+ *         email:
+ *           type: string
+ *         address:
+ *           type: string
+ *     SupplierInput:
+ *       type: object
+ *       required:
+ *         - name
+ *       properties:
+ *         name:
+ *           type: string
+ *         contact:
+ *           type: string
+ *         phone:
+ *           type: string
+ *         email:
+ *           type: string
+ *         address:
+ *           type: string
+ */
 
 //===========================
 // Local Development Listener
