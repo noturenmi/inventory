@@ -15,10 +15,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ===========================
+// API Prefix
+// ===========================
+const apiPrefix = "/api/v1";
+
 //===========================
 // Serve Swagger JSON
 //===========================
-app.get("/swagger.json", (req, res) => {
+app.get(`${apiPrefix}/swagger.json`, (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.send(swaggerSpecs);
 });
@@ -30,7 +35,7 @@ app.use(
   "/api-docs",
   swaggerUi.serve,
   swaggerUi.setup(null, {
-    swaggerUrl: "/swagger.json",
+    swaggerUrl: `${apiPrefix}/swagger.json`, // versioned JSON
   })
 );
 
@@ -78,20 +83,20 @@ const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
 
 /**
  * @swagger
- * /:
+ * /api/v1/:
  *   get:
  *     summary: Check API status
  *     responses:
  *       200:
  *         description: API is running
  */
-app.get("/", (req, res) => {
+app.get(`${apiPrefix}/`, (req, res) => {
   res.send("📦 Inventory API is running!");
 });
 
 /**
  * @swagger
- * /items:
+ * /api/v1/items:
  *   get:
  *     summary: Get all items
  *     responses:
@@ -120,7 +125,7 @@ app.get("/", (req, res) => {
  *       201:
  *         description: Item created
  */
-app.post("/items", async (req, res) => {
+app.post(`${apiPrefix}/items`, async (req, res) => {
   await connectToDatabase();
   try {
     const item = new Item(req.body);
@@ -131,7 +136,7 @@ app.post("/items", async (req, res) => {
   }
 });
 
-app.get("/items", async (req, res) => {
+app.get(`${apiPrefix}/items`, async (req, res) => {
   await connectToDatabase();
   try {
     const items = await Item.find().populate("supplier");
@@ -143,7 +148,7 @@ app.get("/items", async (req, res) => {
 
 /**
  * @swagger
- * /items/{id}:
+ * /api/v1/items/{id}:
  *   get:
  *     summary: Get item by ID
  *     parameters:
@@ -201,7 +206,7 @@ app.get("/items", async (req, res) => {
  *       404:
  *         description: Item not found
  */
-app.get("/items/:id", async (req, res) => {
+app.get(`${apiPrefix}/items/:id`, async (req, res) => {
   await connectToDatabase();
   try {
     const item = await Item.findById(req.params.id).populate("supplier");
@@ -212,7 +217,7 @@ app.get("/items/:id", async (req, res) => {
   }
 });
 
-app.put("/items/:id", async (req, res) => {
+app.put(`${apiPrefix}/items/:id`, async (req, res) => {
   await connectToDatabase();
   try {
     const item = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -223,7 +228,7 @@ app.put("/items/:id", async (req, res) => {
   }
 });
 
-app.delete("/items/:id", async (req, res) => {
+app.delete(`${apiPrefix}/items/:id`, async (req, res) => {
   await connectToDatabase();
   try {
     const item = await Item.findByIdAndDelete(req.params.id);
@@ -236,7 +241,7 @@ app.delete("/items/:id", async (req, res) => {
 
 /**
  * @swagger
- * /suppliers:
+ * /api/v1/suppliers:
  *   get:
  *     summary: Get all suppliers
  *     responses:
@@ -265,7 +270,7 @@ app.delete("/items/:id", async (req, res) => {
  *       201:
  *         description: Supplier created
  */
-app.post("/suppliers", async (req, res) => {
+app.post(`${apiPrefix}/suppliers`, async (req, res) => {
   await connectToDatabase();
   try {
     const supplier = new Supplier(req.body);
@@ -276,7 +281,7 @@ app.post("/suppliers", async (req, res) => {
   }
 });
 
-app.get("/suppliers", async (req, res) => {
+app.get(`${apiPrefix}/suppliers`, async (req, res) => {
   await connectToDatabase();
   try {
     const suppliers = await Supplier.find();
@@ -288,14 +293,14 @@ app.get("/suppliers", async (req, res) => {
 
 /**
  * @swagger
- * /categories:
+ * /api/v1/categories:
  *   get:
  *     summary: Get distinct item categories
  *     responses:
  *       200:
  *         description: List of categories
  */
-app.get("/categories", async (req, res) => {
+app.get(`${apiPrefix}/categories`, async (req, res) => {
   await connectToDatabase();
   try {
     const categories = await Item.distinct("category");
@@ -307,14 +312,14 @@ app.get("/categories", async (req, res) => {
 
 /**
  * @swagger
- * /reports/inventory:
+ * /api/v1/reports/inventory:
  *   get:
  *     summary: Get inventory summary report
  *     responses:
  *       200:
  *         description: Inventory report
  */
-app.get("/reports/inventory", async (req, res) => {
+app.get(`${apiPrefix}/reports/inventory`, async (req, res) => {
   await connectToDatabase();
   try {
     const items = await Item.find().populate("supplier");
