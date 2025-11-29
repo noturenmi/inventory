@@ -9,7 +9,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
-const swaggerSpecs = require("./swagger");
+const swaggerSpecs = require("./swagger"); // your swagger config
 
 const app = express();
 app.use(cors());
@@ -88,6 +88,37 @@ const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
 //===========================
 
 // ---------- ITEMS ----------
+/**
+ * @swagger
+ * /api/v1/items:
+ *   get:
+ *     summary: Get all items
+ *     responses:
+ *       200:
+ *         description: List of items
+ *   post:
+ *     summary: Add a new item
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               stock:
+ *                 type: number
+ *               price:
+ *                 type: number
+ *               supplier:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Item created
+ */
 app.post(`${apiPrefix}/items`, async (req, res) => {
   await connectToDatabase();
   try {
