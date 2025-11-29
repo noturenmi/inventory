@@ -30,7 +30,7 @@ app.use(
   "/api-docs",
   swaggerUi.serve,
   swaggerUi.setup(null, {
-    swaggerUrl: "/swagger.json", // Load JSON spec explicitly (Vercel-friendly)
+    swaggerUrl: "/swagger.json",
   })
 );
 
@@ -76,11 +76,50 @@ const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
 // ROUTES
 //===========================
 
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: Check API status
+ *     responses:
+ *       200:
+ *         description: API is running
+ */
 app.get("/", (req, res) => {
   res.send("📦 Inventory API is running!");
 });
 
-// --- ITEMS ---
+/**
+ * @swagger
+ * /items:
+ *   get:
+ *     summary: Get all items
+ *     responses:
+ *       200:
+ *         description: List of items
+ *   post:
+ *     summary: Add a new item
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               stock:
+ *                 type: number
+ *               price:
+ *                 type: number
+ *               supplier:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Item created
+ */
 app.post("/items", async (req, res) => {
   await connectToDatabase();
   try {
@@ -102,6 +141,66 @@ app.get("/items", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /items/{id}:
+ *   get:
+ *     summary: Get item by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Item details
+ *       404:
+ *         description: Item not found
+ *   put:
+ *     summary: Update item by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               stock:
+ *                 type: number
+ *               price:
+ *                 type: number
+ *               supplier:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Item updated
+ *       404:
+ *         description: Item not found
+ *   delete:
+ *     summary: Delete item by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Item deleted
+ *       404:
+ *         description: Item not found
+ */
 app.get("/items/:id", async (req, res) => {
   await connectToDatabase();
   try {
@@ -135,7 +234,37 @@ app.delete("/items/:id", async (req, res) => {
   }
 });
 
-// --- SUPPLIERS ---
+/**
+ * @swagger
+ * /suppliers:
+ *   get:
+ *     summary: Get all suppliers
+ *     responses:
+ *       200:
+ *         description: List of suppliers
+ *   post:
+ *     summary: Add a new supplier
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               contact:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Supplier created
+ */
 app.post("/suppliers", async (req, res) => {
   await connectToDatabase();
   try {
@@ -157,7 +286,15 @@ app.get("/suppliers", async (req, res) => {
   }
 });
 
-// --- CATEGORIES ---
+/**
+ * @swagger
+ * /categories:
+ *   get:
+ *     summary: Get distinct item categories
+ *     responses:
+ *       200:
+ *         description: List of categories
+ */
 app.get("/categories", async (req, res) => {
   await connectToDatabase();
   try {
@@ -168,7 +305,15 @@ app.get("/categories", async (req, res) => {
   }
 });
 
-// --- INVENTORY REPORTS ---
+/**
+ * @swagger
+ * /reports/inventory:
+ *   get:
+ *     summary: Get inventory summary report
+ *     responses:
+ *       200:
+ *         description: Inventory report
+ */
 app.get("/reports/inventory", async (req, res) => {
   await connectToDatabase();
   try {
