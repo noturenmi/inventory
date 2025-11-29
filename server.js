@@ -21,6 +21,13 @@ app.use(express.json());
 const apiPrefix = "/api/v1";
 
 //===========================
+// Root endpoint
+//===========================
+app.get("/", (req, res) => {
+  res.send("📦 Inventory API is running!");
+});
+
+//===========================
 // Serve Swagger JSON
 //===========================
 app.get(`${apiPrefix}/swagger.json`, (req, res) => {
@@ -35,7 +42,7 @@ app.use(
   "/api-docs",
   swaggerUi.serve,
   swaggerUi.setup(null, {
-    swaggerUrl: `${apiPrefix}/swagger.json`, // versioned JSON
+    swaggerUrl: `${apiPrefix}/swagger.json`,
   })
 );
 
@@ -43,7 +50,6 @@ app.use(
 // MongoDB Connection 
 //===========================
 let isConnected = false;
-
 async function connectToDatabase() {
   if (isConnected) return;
 
@@ -81,50 +87,7 @@ const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
 // ROUTES
 //===========================
 
-/**
- * @swagger
- * /api/v1/:
- *   get:
- *     summary: Check API status
- *     responses:
- *       200:
- *         description: API is running
- */
-app.get(`${apiPrefix}/`, (req, res) => {
-  res.send("📦 Inventory API is running!");
-});
-
-/**
- * @swagger
- * /api/v1/items:
- *   get:
- *     summary: Get all items
- *     responses:
- *       200:
- *         description: List of items
- *   post:
- *     summary: Add a new item
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               category:
- *                 type: string
- *               stock:
- *                 type: number
- *               price:
- *                 type: number
- *               supplier:
- *                 type: string
- *     responses:
- *       201:
- *         description: Item created
- */
+// ---------- ITEMS ----------
 app.post(`${apiPrefix}/items`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -146,66 +109,6 @@ app.get(`${apiPrefix}/items`, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/v1/items/{id}:
- *   get:
- *     summary: Get item by ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Item details
- *       404:
- *         description: Item not found
- *   put:
- *     summary: Update item by ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               category:
- *                 type: string
- *               stock:
- *                 type: number
- *               price:
- *                 type: number
- *               supplier:
- *                 type: string
- *     responses:
- *       200:
- *         description: Item updated
- *       404:
- *         description: Item not found
- *   delete:
- *     summary: Delete item by ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Item deleted
- *       404:
- *         description: Item not found
- */
 app.get(`${apiPrefix}/items/:id`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -239,37 +142,7 @@ app.delete(`${apiPrefix}/items/:id`, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/v1/suppliers:
- *   get:
- *     summary: Get all suppliers
- *     responses:
- *       200:
- *         description: List of suppliers
- *   post:
- *     summary: Add a new supplier
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               contact:
- *                 type: string
- *               phone:
- *                 type: string
- *               email:
- *                 type: string
- *               address:
- *                 type: string
- *     responses:
- *       201:
- *         description: Supplier created
- */
+// ---------- SUPPLIERS ----------
 app.post(`${apiPrefix}/suppliers`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -291,15 +164,7 @@ app.get(`${apiPrefix}/suppliers`, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/v1/categories:
- *   get:
- *     summary: Get distinct item categories
- *     responses:
- *       200:
- *         description: List of categories
- */
+// ---------- CATEGORIES ----------
 app.get(`${apiPrefix}/categories`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -310,42 +175,31 @@ app.get(`${apiPrefix}/categories`, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/v1/reports/inventory:
- *   get:
- *     summary: Get inventory summary report
- *     responses:
- *       200:
- *         description: Inventory report
- */
+// ---------- INVENTORY REPORT ----------
 app.get(`${apiPrefix}/reports/inventory`, async (req, res) => {
   await connectToDatabase();
   try {
     const items = await Item.find().populate("supplier");
-
     const totalItems = items.length;
-    const totalStock = items.reduce((sum, item) => sum + item.stock, 0);
-    const totalValue = items.reduce((sum, item) => sum + item.stock * item.price, 0);
+    const totalStock = items.reduce((sum, i) => sum + i.stock, 0);
+    const totalValue = items.reduce((sum, i) => sum + i.stock * i.price, 0);
 
     const byCategory = {};
-    items.forEach(item => {
-      if (!byCategory[item.category]) {
-        byCategory[item.category] = { count: 0, totalStock: 0, totalValue: 0 };
-      }
-      byCategory[item.category].count += 1;
-      byCategory[item.category].totalStock += item.stock;
-      byCategory[item.category].totalValue += item.stock * item.price;
+    items.forEach((i) => {
+      if (!byCategory[i.category]) byCategory[i.category] = { count: 0, totalStock: 0, totalValue: 0 };
+      byCategory[i.category].count += 1;
+      byCategory[i.category].totalStock += i.stock;
+      byCategory[i.category].totalValue += i.stock * i.price;
     });
 
-    const categorySummary = Object.keys(byCategory).map(cat => ({
+    const categorySummary = Object.keys(byCategory).map((cat) => ({
       _id: cat,
       count: byCategory[cat].count,
       totalStock: byCategory[cat].totalStock,
       totalValue: byCategory[cat].totalValue,
     }));
 
-    const lowStock = items.filter(item => item.stock <= 5);
+    const lowStock = items.filter((i) => i.stock <= 5);
 
     res.json({
       totalItems,
@@ -361,14 +215,6 @@ app.get(`${apiPrefix}/reports/inventory`, async (req, res) => {
 });
 
 //===========================
-// Local Development Listener
-//===========================
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => console.log(`🚀 Local server running on http://localhost:${PORT}`));
-}
-
-//===========================
-// Export app for Vercel
+// Export for Vercel
 //===========================
 module.exports = app;
