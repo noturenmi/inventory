@@ -7,10 +7,17 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpecs = require("./swagger");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+//===========================
+// Swagger UI
+//===========================
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 //===========================
 // MongoDB Connection 
@@ -53,11 +60,50 @@ const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
 //===========================
 // ROUTES
 //===========================
+
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: Check API status
+ *     responses:
+ *       200:
+ *         description: API is running
+ */
 app.get("/", (req, res) => {
   res.send("📦 Inventory API is running!");
 });
 
 // --- ITEMS ---
+
+/**
+ * @swagger
+ * /items:
+ *   post:
+ *     summary: Add a new item
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               stock:
+ *                 type: number
+ *               price:
+ *                 type: number
+ *               supplier:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Item created successfully
+ *       400:
+ *         description: Bad request
+ */
 app.post("/items", async (req, res) => {
   await connectToDatabase();
   try {
@@ -69,6 +115,15 @@ app.post("/items", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /items:
+ *   get:
+ *     summary: Get all items
+ *     responses:
+ *       200:
+ *         description: List of items
+ */
 app.get("/items", async (req, res) => {
   await connectToDatabase();
   try {
@@ -79,6 +134,23 @@ app.get("/items", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /items/{id}:
+ *   get:
+ *     summary: Get an item by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Item details
+ *       404:
+ *         description: Item not found
+ */
 app.get("/items/:id", async (req, res) => {
   await connectToDatabase();
   try {
@@ -90,6 +162,28 @@ app.get("/items/:id", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /items/{id}:
+ *   put:
+ *     summary: Update an item by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Updated item
+ *       404:
+ *         description: Item not found
+ */
 app.put("/items/:id", async (req, res) => {
   await connectToDatabase();
   try {
@@ -101,6 +195,23 @@ app.put("/items/:id", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /items/{id}:
+ *   delete:
+ *     summary: Delete an item by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Item deleted successfully
+ *       404:
+ *         description: Item not found
+ */
 app.delete("/items/:id", async (req, res) => {
   await connectToDatabase();
   try {
@@ -113,6 +224,35 @@ app.delete("/items/:id", async (req, res) => {
 });
 
 // --- SUPPLIERS ---
+
+/**
+ * @swagger
+ * /suppliers:
+ *   post:
+ *     summary: Add a new supplier
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               contact:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Supplier created successfully
+ *       400:
+ *         description: Bad request
+ */
 app.post("/suppliers", async (req, res) => {
   await connectToDatabase();
   try {
@@ -124,6 +264,15 @@ app.post("/suppliers", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /suppliers:
+ *   get:
+ *     summary: Get all suppliers
+ *     responses:
+ *       200:
+ *         description: List of suppliers
+ */
 app.get("/suppliers", async (req, res) => {
   await connectToDatabase();
   try {
@@ -134,8 +283,17 @@ app.get("/suppliers", async (req, res) => {
   }
 });
 
-
 // --- CATEGORIES ---
+
+/**
+ * @swagger
+ * /categories:
+ *   get:
+ *     summary: Get distinct item categories
+ *     responses:
+ *       200:
+ *         description: List of categories
+ */
 app.get("/categories", async (req, res) => {
   await connectToDatabase();
   try {
@@ -146,7 +304,17 @@ app.get("/categories", async (req, res) => {
   }
 });
 
-// --- INVENTORY SUMMARY / REPORTS ---
+// --- INVENTORY REPORTS ---
+
+/**
+ * @swagger
+ * /reports/inventory:
+ *   get:
+ *     summary: Get inventory summary
+ *     responses:
+ *       200:
+ *         description: Inventory report
+ */
 app.get("/reports/inventory", async (req, res) => {
   await connectToDatabase();
   try {
@@ -189,12 +357,14 @@ app.get("/reports/inventory", async (req, res) => {
 });
 
 //===========================
-// Localhost
+// Local Development Listener
 //===========================
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Local server running on http://localhost:${PORT}`));
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`🚀 Local server running on http://localhost:${PORT}`));
+}
 
 //===========================
-// Export app for Vercel serverless
+// Export app for Vercel
 //===========================
 module.exports = app;
