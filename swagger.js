@@ -11,7 +11,7 @@ const options = {
     servers: [
       {
         url: process.env.NODE_ENV === "production"
-          ? "https://zentiels-inventory.vercel.app/"
+          ? "https://zentiels-inventory.vercel.app"
           : "http://localhost:3000",
       },
     ],
