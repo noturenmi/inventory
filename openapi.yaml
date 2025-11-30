@@ -1,0 +1,382 @@
+openapi: 3.0.4
+info:
+  title: Inventory Management API
+  description: |
+    This is a sample Inventory Management API. You can manage products, suppliers, orders, and users.
+    Advanced features include low-stock alerts and restocking products.
+  version: 1.0.0
+servers:
+  - url: https://zentiels-inventory.vercel.app/api/v1
+    description: Production server
+  - url: http://localhost:3000/api/v1
+    description: Local development server
+tags:
+  - name: product
+    description: Operations related to products
+  - name: supplier
+    description: Operations related to suppliers
+  - name: order
+    description: Operations related to orders
+  - name: user
+    description: Operations related to users
+
+paths:
+  /products:
+    get:
+      tags:
+        - product
+      summary: Get all products
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - product
+      summary: Create a new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid input
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /products/{productId}:
+    get:
+      tags:
+        - product
+      summary: Get product by ID
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+    put:
+      tags:
+        - product
+      summary: Update a product
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Product updated successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Product not found
+    delete:
+      tags:
+        - product
+      summary: Delete a product
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Product deleted
+        '404':
+          description: Product not found
+
+  /products/low-stock:
+    get:
+      tags:
+        - product
+      summary: Get products with low stock
+      parameters:
+        - name: threshold
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Low-stock products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /products/{productId}/restock:
+    patch:
+      tags:
+        - product
+      summary: Restock a product
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - quantity
+              properties:
+                quantity:
+                  type: integer
+                  example: 20
+      responses:
+        '200':
+          description: Product restocked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid quantity
+        '404':
+          description: Product not found
+
+  /suppliers:
+    get:
+      tags:
+        - supplier
+      summary: Get all suppliers
+      responses:
+        '200':
+          description: List of suppliers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Supplier'
+    post:
+      tags:
+        - supplier
+      summary: Create a supplier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Supplier'
+      responses:
+        '200':
+          description: Supplier created successfully
+
+  /suppliers/{supplierId}:
+    get:
+      tags:
+        - supplier
+      summary: Get supplier by ID
+      parameters:
+        - name: supplierId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Supplier details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '404':
+          description: Supplier not found
+    put:
+      tags:
+        - supplier
+      summary: Update a supplier
+      parameters:
+        - name: supplierId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Supplier'
+      responses:
+        '200':
+          description: Supplier updated
+    delete:
+      tags:
+        - supplier
+      summary: Delete a supplier
+      parameters:
+        - name: supplierId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Supplier deleted
+
+  /suppliers/{supplierId}/products:
+    get:
+      tags:
+        - supplier
+      summary: Get products by supplier
+      parameters:
+        - name: supplierId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Products supplied by supplier
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '404':
+          description: Supplier not found
+
+components:
+  schemas:
+    Product:
+      type: object
+      required:
+        - name
+        - quantity
+      properties:
+        id:
+          type: integer
+          example: 101
+        name:
+          type: string
+          example: "Laptop"
+        description:
+          type: string
+          example: "15-inch gaming laptop"
+        quantity:
+          type: integer
+          example: 25
+        supplierId:
+          type: integer
+          example: 5
+
+    Supplier:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          example: 5
+        name:
+          type: string
+          example: "Tech Supplies Inc."
+        email:
+          type: string
+          example: "contact@techsupplies.com"
+        phone:
+          type: string
+          example: "09171234567"
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2001
+        productId:
+          type: integer
+          example: 101
+        quantity:
+          type: integer
+          example: 2
+        status:
+          type: string
+          enum: [pending, approved, delivered]
+          example: pending
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: "admin"
+        email:
+          type: string
+          example: "admin@example.com"
+        password:
+          type: string
+          example: "password"
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: "500"
+        message:
+          type: string
+          example: "Unexpected server error"
