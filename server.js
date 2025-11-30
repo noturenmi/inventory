@@ -35,7 +35,7 @@ const swaggerDocument = {
     version: "1.0.3",
     description: "Inventory API for products. Hosted on Vercel + MongoDB Atlas.",
   },
-  servers: [{ url: `https://YOUR_VERCEL_URL.vercel.app`, description: "Vercel server" }],
+  servers: [{ url: `https://zentiels-inventory.vercel.app/`, description: "Vercel server" }],
   tags: [{ name: "products", description: "Product operations" }],
   paths: {
     "/products": {
