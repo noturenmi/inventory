@@ -31,9 +31,20 @@ export default async function handler(req, res) {
   await connectDB();
 
   const { method } = req;
-  const { id } = req.query;
+  const { id, action } = req.query; // action can be 'status' for inventory
 
   try {
+    // --- Inventory status ---
+    if (method === 'GET' && action === 'status') {
+      const products = await Product.find({}, { name: 1, quantity: 1 }); // only id, name, quantity
+      const inventory = products.map(p => ({
+        productId: p._id,
+        productName: p.name,
+        availableQuantity: p.quantity
+      }));
+      return res.json(inventory);
+    }
+
     switch (method) {
       case 'GET':
         if (id) {
