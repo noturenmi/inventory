@@ -1,5 +1,5 @@
 // ==============================
-// Inventory API
+// Inventory API 
 // Node.js + Express + MongoDB Atlas
 // Vercel-ready with Swagger UI
 // ==============================
@@ -9,6 +9,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
+const fs = require("fs");
+const path = require("path");
 
 const app = express();
 app.use(cors());
@@ -19,44 +21,43 @@ app.use(express.json());
 // ===========================
 const apiPrefix = "/api/v1";
 
-// ===========================
-// Swagger Documentation (static JSON)
-// ===========================
-const swaggerDocument = require("./swagger.json");
-
-// Serve swagger generated JSON (required for Vercel)
-app.get(`${apiPrefix}/swagger.json`, (req, res) => {
-  res.setHeader("Content-Type", "application/json");
-  res.send(swaggerDocument);
+//===========================
+// Root endpoint
+//===========================
+app.get("/", (req, res) => {
+  res.send("📦 Inventory API is running!");
 });
 
-// Serve Swagger UI
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerDocument)
-);
+//===========================
+// Load swagger.json
+//===========================
+const swaggerFile = path.join(__dirname, "swagger.json");
+const swaggerDocs = JSON.parse(fs.readFileSync(swaggerFile, "utf8"));
 
-// ===========================
-// MongoDB Connection
-// ===========================
+//===========================
+// Swagger UI
+//===========================
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+//===========================
+// MongoDB Connection 
+//===========================
 let isConnected = false;
-
 async function connectToDatabase() {
   if (isConnected) return;
 
   try {
-    const database = await mongoose.connect(process.env.MONGODB_URI);
-    isConnected = database.connections[0].readyState === 1;
-    console.log("📡 MongoDB Connected");
+    const db = await mongoose.connect(process.env.MONGODB_URI);
+    isConnected = db.connections[0].readyState === 1;
+    console.log("📡 MongoDB Connected.");
   } catch (err) {
     console.error("❌ MongoDB Connection Error:", err);
   }
 }
 
-// ===========================
+//===========================
 // MODELS
-// ===========================
+//===========================
 const supplierSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   contact: String,
@@ -75,148 +76,88 @@ const itemSchema = new mongoose.Schema({
 });
 const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
 
-// ===========================
+//===========================
 // ROUTES
-// ===========================
+//===========================
 
-// ----------------- ITEMS -----------------
-app.get(`${apiPrefix}/items`, async (req, res) => {
-  await connectToDatabase();
-  try {
-    const items = await Item.find().populate("supplier");
-    res.json(items);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
+// ITEMS
 app.post(`${apiPrefix}/items`, async (req, res) => {
   await connectToDatabase();
   try {
-    const newItem = new Item(req.body);
-    await newItem.save();
-    res.status(201).json(newItem);
+    const item = new Item(req.body);
+    await item.save();
+    res.status(201).json(item);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
 
+app.get(`${apiPrefix}/items`, async (req, res) => {
+  await connectToDatabase();
+  const items = await Item.find().populate("supplier");
+  res.json(items);
+});
+
+// ITEM BY ID
 app.get(`${apiPrefix}/items/:id`, async (req, res) => {
   await connectToDatabase();
-  try {
-    const item = await Item.findById(req.params.id).populate("supplier");
-    if (!item) return res.status(404).json({ message: "Item not found" });
-    res.json(item);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+  const item = await Item.findById(req.params.id).populate("supplier");
+  if (!item) return res.status(404).json({ message: "Item not found" });
+  res.json(item);
 });
 
 app.put(`${apiPrefix}/items/:id`, async (req, res) => {
   await connectToDatabase();
-  try {
-    const updated = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ message: "Item not found" });
-    res.json(updated);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+  const item = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  res.json(item);
 });
 
 app.delete(`${apiPrefix}/items/:id`, async (req, res) => {
   await connectToDatabase();
-  try {
-    const removed = await Item.findByIdAndDelete(req.params.id);
-    if (!removed) return res.status(404).json({ message: "Item not found" });
-    res.json({ message: "Item deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+  const item = await Item.findByIdAndDelete(req.params.id);
+  res.json({ message: "Item deleted" });
 });
 
-// ----------------- SUPPLIERS -----------------
-app.get(`${apiPrefix}/suppliers`, async (req, res) => {
-  await connectToDatabase();
-  try {
-    const suppliers = await Supplier.find();
-    res.json(suppliers);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
+// SUPPLIERS
 app.post(`${apiPrefix}/suppliers`, async (req, res) => {
   await connectToDatabase();
-  try {
-    const supplier = new Supplier(req.body);
-    await supplier.save();
-    res.status(201).json(supplier);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+  const supplier = new Supplier(req.body);
+  await supplier.save();
+  res.status(201).json(supplier);
 });
 
-// ----------------- CATEGORIES -----------------
+app.get(`${apiPrefix}/suppliers`, async (req, res) => {
+  await connectToDatabase();
+  const suppliers = await Supplier.find();
+  res.json(suppliers);
+});
+
+// CATEGORIES
 app.get(`${apiPrefix}/categories`, async (req, res) => {
   await connectToDatabase();
-  try {
-    const categories = await Item.distinct("category");
-    res.json(categories);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+  const categories = await Item.distinct("category");
+  res.json(categories);
 });
 
-// ----------------- REPORTS -----------------
+// INVENTORY REPORT
 app.get(`${apiPrefix}/reports/inventory`, async (req, res) => {
   await connectToDatabase();
-  try {
-    const items = await Item.find().populate("supplier");
+  const items = await Item.find();
 
-    const totalItems = items.length;
-    const totalStock = items.reduce((s, i) => s + i.stock, 0);
-    const totalValue = items.reduce((s, i) => s + i.stock * i.price, 0);
+  const totalItems = items.length;
+  const totalStock = items.reduce((sum, i) => sum + i.stock, 0);
+  const totalValue = items.reduce((sum, i) => sum + i.stock * i.price, 0);
 
-    const categorySummary = {};
-
-    items.forEach((i) => {
-      if (!categorySummary[i.category])
-        categorySummary[i.category] = { count: 0, totalStock: 0, totalValue: 0 };
-
-      categorySummary[i.category].count++;
-      categorySummary[i.category].totalStock += i.stock;
-      categorySummary[i.category].totalValue += i.stock * i.price;
-    });
-
-    res.json({
-      totalItems,
-      totalStock,
-      totalValue,
-      byCategory: categorySummary,
-      lowStock: items.filter((i) => i.stock <= 5),
-      lowStockThreshold: 5
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+  res.json({ totalItems, totalStock, totalValue });
 });
 
 // ===========================
-// Root Page
-// ===========================
-app.get("/", (req, res) => {
-  res.send("📦 Inventory API is running! Visit /api-docs for documentation.");
-});
-
-// ===========================
-// Local Development Listener
-// ===========================
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () =>
-    console.log(`🚀 Local server running → http://localhost:${PORT}`)
-  );
-}
-
 // Export for Vercel
+// ===========================
 module.exports = app;
+
+// Local dev mode
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`🚀 Local API running at http://localhost:${PORT}`));
+}
