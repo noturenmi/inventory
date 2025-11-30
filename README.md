@@ -162,4 +162,5 @@ Settings → Environment Variables:
 | MONGODB_URI | your MongoDB Atlas URL |
 
 **4. Deploy**
+
 Vercel auto-builds and hosts the API.
