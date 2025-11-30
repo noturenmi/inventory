@@ -1,5 +1,5 @@
 // ==============================
-// Inventory API 
+// Inventory API
 // Node.js + Express + MongoDB Atlas
 // Vercel-ready with Swagger UI
 // ==============================
@@ -9,7 +9,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
-const swaggerJsDoc = require("swagger-jsdoc");
 
 const app = express();
 app.use(cors());
@@ -20,64 +19,50 @@ app.use(express.json());
 // ===========================
 const apiPrefix = "/api/v1";
 
-//===========================
-// Swagger Setup
-//===========================
-const swaggerOptions = {
-  definition: {
-    openapi: "3.0.3",
-    info: {
-      title: "Inventory API",
-      version: "1.0.0",
-      description: "Inventory management API using Node.js, Express, and MongoDB",
-    },
-    servers: [
-      { url: "http://localhost:3000" },
-      { url: "https://zentiels-inventory.vercel.app" },
-    ],
-  },
-  apis: ["./server.js"], // Swagger reads JSDoc comments from this file
-};
-const swaggerSpecs = swaggerJsDoc(swaggerOptions);
+// ===========================
+// Swagger Documentation (static JSON)
+// ===========================
+const swaggerDocument = require("./swagger.json");
 
+// Serve swagger generated JSON (required for Vercel)
 app.get(`${apiPrefix}/swagger.json`, (req, res) => {
   res.setHeader("Content-Type", "application/json");
-  res.send(swaggerSpecs);
+  res.send(swaggerDocument);
 });
 
+// Serve Swagger UI
 app.use(
   "/api-docs",
   swaggerUi.serve,
-  swaggerUi.setup(null, {
-    swaggerUrl: `${apiPrefix}/swagger.json`,
-  })
+  swaggerUi.setup(swaggerDocument)
 );
 
-//===========================
-// MongoDB Connection 
-//===========================
+// ===========================
+// MongoDB Connection
+// ===========================
 let isConnected = false;
+
 async function connectToDatabase() {
   if (isConnected) return;
 
   try {
-    const db = await mongoose.connect(process.env.MONGODB_URI);
-    isConnected = db.connections[0].readyState === 1;
-    console.log("📡 MongoDB Connected.");
+    const database = await mongoose.connect(process.env.MONGODB_URI);
+    isConnected = database.connections[0].readyState === 1;
+    console.log("📡 MongoDB Connected");
   } catch (err) {
     console.error("❌ MongoDB Connection Error:", err);
   }
 }
 
-//===========================
+// ===========================
 // MODELS
-//===========================
+// ===========================
 const supplierSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   contact: String,
   phone: String,
   email: String,
-  address: String,
+  address: String
 });
 const Supplier = mongoose.models.Supplier || mongoose.model("Supplier", supplierSchema);
 
@@ -86,65 +71,15 @@ const itemSchema = new mongoose.Schema({
   category: { type: String, default: "General" },
   stock: { type: Number, default: 0 },
   price: { type: Number, default: 0 },
-  supplier: { type: mongoose.Schema.Types.ObjectId, ref: "Supplier" },
+  supplier: { type: mongoose.Schema.Types.ObjectId, ref: "Supplier" }
 });
 const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
 
-//===========================
+// ===========================
 // ROUTES
-//===========================
+// ===========================
 
-/**
- * @swagger
- * tags:
- *   - name: Items
- *     description: Operations about inventory items
- *   - name: Suppliers
- *     description: Operations about suppliers
- *   - name: Categories
- *     description: Get distinct item categories
- *   - name: Reports
- *     description: Inventory summary reports
- */
-
-/**
- * @swagger
- * /api/v1/items:
- *   get:
- *     summary: Get all items
- *     tags: [Items]
- *     responses:
- *       200:
- *         description: List of items
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Item'
- *   post:
- *     summary: Add a new item
- *     tags: [Items]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ItemInput'
- *     responses:
- *       201:
- *         description: Item created
- */
-app.post(`${apiPrefix}/items`, async (req, res) => {
-  await connectToDatabase();
-  try {
-    const item = new Item(req.body);
-    await item.save();
-    res.status(201).json(item);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+// ----------------- ITEMS -----------------
 app.get(`${apiPrefix}/items`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -155,58 +90,17 @@ app.get(`${apiPrefix}/items`, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/v1/items/{id}:
- *   get:
- *     summary: Get item by ID
- *     tags: [Items]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Item details
- *       404:
- *         description: Item not found
- *   put:
- *     summary: Update item by ID
- *     tags: [Items]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ItemInput'
- *     responses:
- *       200:
- *         description: Item updated
- *       404:
- *         description: Item not found
- *   delete:
- *     summary: Delete item by ID
- *     tags: [Items]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Item deleted
- *       404:
- *         description: Item not found
- */
+app.post(`${apiPrefix}/items`, async (req, res) => {
+  await connectToDatabase();
+  try {
+    const newItem = new Item(req.body);
+    await newItem.save();
+    res.status(201).json(newItem);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 app.get(`${apiPrefix}/items/:id`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -217,54 +111,30 @@ app.get(`${apiPrefix}/items/:id`, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 app.put(`${apiPrefix}/items/:id`, async (req, res) => {
   await connectToDatabase();
   try {
-    const item = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!item) return res.status(404).json({ message: "Item not found" });
-    res.json(item);
+    const updated = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ message: "Item not found" });
+    res.json(updated);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
+
 app.delete(`${apiPrefix}/items/:id`, async (req, res) => {
   await connectToDatabase();
   try {
-    const item = await Item.findByIdAndDelete(req.params.id);
-    if (!item) return res.status(404).json({ message: "Item not found" });
+    const removed = await Item.findByIdAndDelete(req.params.id);
+    if (!removed) return res.status(404).json({ message: "Item not found" });
     res.json({ message: "Item deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// ---------- SUPPLIERS ----------
-/**
- * @swagger
- * /api/v1/suppliers:
- *   get:
- *     summary: Get all suppliers
- *     tags: [Suppliers]
- *   post:
- *     summary: Add a new supplier
- *     tags: [Suppliers]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/SupplierInput'
- */
-app.post(`${apiPrefix}/suppliers`, async (req, res) => {
-  await connectToDatabase();
-  try {
-    const supplier = new Supplier(req.body);
-    await supplier.save();
-    res.status(201).json(supplier);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+// ----------------- SUPPLIERS -----------------
 app.get(`${apiPrefix}/suppliers`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -275,14 +145,18 @@ app.get(`${apiPrefix}/suppliers`, async (req, res) => {
   }
 });
 
-// ---------- CATEGORIES ----------
-/**
- * @swagger
- * /api/v1/categories:
- *   get:
- *     summary: Get distinct item categories
- *     tags: [Categories]
- */
+app.post(`${apiPrefix}/suppliers`, async (req, res) => {
+  await connectToDatabase();
+  try {
+    const supplier = new Supplier(req.body);
+    await supplier.save();
+    res.status(201).json(supplier);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// ----------------- CATEGORIES -----------------
 app.get(`${apiPrefix}/categories`, async (req, res) => {
   await connectToDatabase();
   try {
@@ -293,130 +167,56 @@ app.get(`${apiPrefix}/categories`, async (req, res) => {
   }
 });
 
-// ---------- INVENTORY REPORT ----------
-/**
- * @swagger
- * /api/v1/reports/inventory:
- *   get:
- *     summary: Get inventory summary report
- *     tags: [Reports]
- */
+// ----------------- REPORTS -----------------
 app.get(`${apiPrefix}/reports/inventory`, async (req, res) => {
   await connectToDatabase();
   try {
     const items = await Item.find().populate("supplier");
+
     const totalItems = items.length;
-    const totalStock = items.reduce((sum, i) => sum + i.stock, 0);
-    const totalValue = items.reduce((sum, i) => sum + i.stock * i.price, 0);
+    const totalStock = items.reduce((s, i) => s + i.stock, 0);
+    const totalValue = items.reduce((s, i) => s + i.stock * i.price, 0);
 
-    const byCategory = {};
+    const categorySummary = {};
+
     items.forEach((i) => {
-      if (!byCategory[i.category]) byCategory[i.category] = { count: 0, totalStock: 0, totalValue: 0 };
-      byCategory[i.category].count += 1;
-      byCategory[i.category].totalStock += i.stock;
-      byCategory[i.category].totalValue += i.stock * i.price;
+      if (!categorySummary[i.category])
+        categorySummary[i.category] = { count: 0, totalStock: 0, totalValue: 0 };
+
+      categorySummary[i.category].count++;
+      categorySummary[i.category].totalStock += i.stock;
+      categorySummary[i.category].totalValue += i.stock * i.price;
     });
-
-    const categorySummary = Object.keys(byCategory).map((cat) => ({
-      _id: cat,
-      count: byCategory[cat].count,
-      totalStock: byCategory[cat].totalStock,
-      totalValue: byCategory[cat].totalValue,
-    }));
-
-    const lowStock = items.filter((i) => i.stock <= 5);
 
     res.json({
       totalItems,
       totalStock,
       totalValue,
       byCategory: categorySummary,
-      lowStock,
-      lowStockThreshold: 5,
+      lowStock: items.filter((i) => i.stock <= 5),
+      lowStockThreshold: 5
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-//===========================
-// Components for Swagger
-//===========================
-/**
- * @swagger
- * components:
- *   schemas:
- *     Item:
- *       type: object
- *       properties:
- *         _id:
- *           type: string
- *         name:
- *           type: string
- *         category:
- *           type: string
- *         stock:
- *           type: integer
- *         price:
- *           type: number
- *         supplier:
- *           $ref: '#/components/schemas/Supplier'
- *     ItemInput:
- *       type: object
- *       required:
- *         - name
- *       properties:
- *         name:
- *           type: string
- *         category:
- *           type: string
- *         stock:
- *           type: integer
- *         price:
- *           type: number
- *         supplier:
- *           type: string
- *     Supplier:
- *       type: object
- *       properties:
- *         _id:
- *           type: string
- *         name:
- *           type: string
- *         contact:
- *           type: string
- *         phone:
- *           type: string
- *         email:
- *           type: string
- *         address:
- *           type: string
- *     SupplierInput:
- *       type: object
- *       required:
- *         - name
- *       properties:
- *         name:
- *           type: string
- *         contact:
- *           type: string
- *         phone:
- *           type: string
- *         email:
- *           type: string
- *         address:
- *           type: string
- */
+// ===========================
+// Root Page
+// ===========================
+app.get("/", (req, res) => {
+  res.send("📦 Inventory API is running! Visit /api-docs for documentation.");
+});
 
-//===========================
+// ===========================
 // Local Development Listener
-//===========================
+// ===========================
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => console.log(`🚀 Local server running on http://localhost:${PORT}`));
+  app.listen(PORT, () =>
+    console.log(`🚀 Local server running → http://localhost:${PORT}`)
+  );
 }
 
-//===========================
 // Export for Vercel
-//===========================
 module.exports = app;
