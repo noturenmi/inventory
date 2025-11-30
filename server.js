@@ -1,162 +1,125 @@
 const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
-const YAML = require('yamljs');
+require('dotenv').config();
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// --- Middleware ---
 app.use(express.json());
+app.use(cors());
 
-// --- Load OpenAPI YAML ---
-const swaggerDocument = YAML.load('./inventory-openapi.yaml'); // <- your inventory OpenAPI file
+// --- MongoDB Connection ---
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/inventory';
+
+mongoose.connect(MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('✔ Connected to MongoDB'))
+.catch(err => console.error('✖ MongoDB connection error:', err));
+
+// --- Mongoose Schema ---
+const productSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  price: { type: Number, required: true }
+});
+const Product = mongoose.model('Product', productSchema);
+
+// --- Swagger Spec ---
+const swaggerDocument = {
+  openapi: "3.0.4",
+  info: {
+    title: "Inventory API",
+    version: "1.0.3",
+    description: "Inventory API with products, suppliers, orders, and stock status.",
+    contact: { email: "youremail@example.com" },
+  },
+  servers: [{ url: `http://localhost:${PORT}`, description: "Local server" }],
+  tags: [
+    { name: "products", description: "Operations about products" },
+  ],
+  paths: {
+    "/products": {
+      get: { tags: ["products"], summary: "Get all products", responses: { "200": { description: "List of products" } } },
+      post: { tags: ["products"], summary: "Add a new product", requestBody: { required: true }, responses: { "201": { description: "Product created" } } }
+    },
+    "/products/{id}": {
+      get: { tags: ["products"], summary: "Get product by ID" },
+      put: { tags: ["products"], summary: "Update product by ID" },
+      delete: { tags: ["products"], summary: "Delete product by ID" }
+    }
+  }
+};
 
 // --- Swagger UI ---
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.get('/', (req, res) => res.send('Inventory API running!'));
+// --- Routes ---
+app.get('/', (req, res) => res.send('📦 Inventory API running!'));
 
-// --- Dummy Data ---
-let products = [
-  { id: 101, name: "Laptop", description: "15-inch gaming laptop", quantity: 25, supplierId: 5 },
-  { id: 102, name: "Mouse", description: "Wireless mouse", quantity: 50, supplierId: 5 }
-];
-
-let suppliers = [
-  { id: 5, name: "Tech Supplies Inc.", email: "contact@techsupplies.com", phone: "09171234567" }
-];
-
-let orders = [
-  { id: 2001, productId: 101, quantity: 2, status: "pending" }
-];
-
-let users = [
-  { id: 1, username: "admin", email: "admin@example.com", password: "password" }
-];
-
-// --- PRODUCTS ---
 // Get all products
-app.get('/api/v1/products', (req, res) => {
-  res.json(products);
-});
-
-// Create product
-app.post('/api/v1/products', (req, res) => {
-  const product = { id: Date.now(), ...req.body };
-  products.push(product);
-  res.json(product);
+app.get('/products', async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.json(products);
+  } catch {
+    res.status(500).json({ code: "500", message: "Internal Server Error" });
+  }
 });
 
 // Get product by ID
-app.get('/api/v1/products/:productId', (req, res) => {
-  const product = products.find(p => p.id == req.params.productId);
-  product ? res.json(product) : res.status(404).json({ code: "404", message: "Product not found" });
+app.get('/products/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ code: "404", message: "Product not found" });
+    res.json(product);
+  } catch {
+    res.status(500).json({ code: "500", message: "Internal Server Error" });
+  }
+});
+
+// Create product
+app.post('/products', async (req, res) => {
+  try {
+    const { name, quantity, price } = req.body;
+    const newProduct = new Product({ name, quantity, price });
+    await newProduct.save();
+    res.status(201).json(newProduct);
+  } catch {
+    res.status(400).json({ code: "400", message: "Invalid product data" });
+  }
 });
 
 // Update product
-app.put('/api/v1/products/:productId', (req, res) => {
-  let product = products.find(p => p.id == req.params.productId);
-  if (product) {
-    Object.assign(product, req.body);
-    res.json(product);
-  } else {
-    res.status(404).json({ code: "404", message: "Product not found" });
+app.put('/products/:id', async (req, res) => {
+  try {
+    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updated) return res.status(404).json({ code: "404", message: "Product not found" });
+    res.json(updated);
+  } catch {
+    res.status(400).json({ code: "400", message: "Invalid product data" });
   }
 });
 
 // Delete product
-app.delete('/api/v1/products/:productId', (req, res) => {
-  const index = products.findIndex(p => p.id == req.params.productId);
-  if (index !== -1) {
-    products.splice(index, 1);
-    res.json({ message: "Product deleted" });
-  } else {
-    res.status(404).json({ code: "404", message: "Product not found" });
+app.delete('/products/:id', async (req, res) => {
+  try {
+    const deleted = await Product.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ code: "404", message: "Product not found" });
+    res.json({ message: "Product deleted successfully" });
+  } catch {
+    res.status(500).json({ code: "500", message: "Internal Server Error" });
   }
 });
 
-// Low-stock products
-app.get('/api/v1/products/low-stock', (req, res) => {
-  const threshold = parseInt(req.query.threshold) || 10;
-  const lowStock = products.filter(p => p.quantity <= threshold);
-  res.json(lowStock);
-});
+// --- Start server for local testing ---
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => console.log(`Local API running at http://localhost:${PORT}`));
+}
 
-// Restock product
-app.patch('/api/v1/products/:productId/restock', (req, res) => {
-  const product = products.find(p => p.id == req.params.productId);
-  const { quantity } = req.body;
-  if (!product) return res.status(404).json({ code: "404", message: "Product not found" });
-  if (!quantity || quantity <= 0) return res.status(400).json({ code: "400", message: "Invalid quantity" });
-  product.quantity += quantity;
-  res.json(product);
-});
-
-// --- SUPPLIERS ---
-// Get all suppliers
-app.get('/api/v1/suppliers', (req, res) => res.json(suppliers));
-
-// Create supplier
-app.post('/api/v1/suppliers', (req, res) => {
-  const supplier = { id: Date.now(), ...req.body };
-  suppliers.push(supplier);
-  res.json(supplier);
-});
-
-// Get supplier by ID
-app.get('/api/v1/suppliers/:supplierId', (req, res) => {
-  const supplier = suppliers.find(s => s.id == req.params.supplierId);
-  supplier ? res.json(supplier) : res.status(404).json({ code: "404", message: "Supplier not found" });
-});
-
-// Update supplier
-app.put('/api/v1/suppliers/:supplierId', (req, res) => {
-  let supplier = suppliers.find(s => s.id == req.params.supplierId);
-  if (supplier) {
-    Object.assign(supplier, req.body);
-    res.json(supplier);
-  } else {
-    res.status(404).json({ code: "404", message: "Supplier not found" });
-  }
-});
-
-// Delete supplier
-app.delete('/api/v1/suppliers/:supplierId', (req, res) => {
-  const index = suppliers.findIndex(s => s.id == req.params.supplierId);
-  if (index !== -1) {
-    suppliers.splice(index, 1);
-    res.json({ message: "Supplier deleted" });
-  } else {
-    res.status(404).json({ code: "404", message: "Supplier not found" });
-  }
-});
-
-// Get products by supplier
-app.get('/api/v1/suppliers/:supplierId/products', (req, res) => {
-  const supplier = suppliers.find(s => s.id == req.params.supplierId);
-  if (!supplier) return res.status(404).json({ code: "404", message: "Supplier not found" });
-  const suppliedProducts = products.filter(p => p.supplierId == supplier.id);
-  res.json(suppliedProducts);
-});
-
-// --- ORDERS ---
-// Get all orders
-app.get('/api/v1/orders', (req, res) => res.json(orders));
-
-// Create order
-app.post('/api/v1/orders', (req, res) => {
-  const order = { id: Date.now(), ...req.body };
-  orders.push(order);
-  res.json(order);
-});
-
-// --- USERS ---
-// Get all users
-app.get('/api/v1/users', (req, res) => res.json(users));
-
-// Create user
-app.post('/api/v1/users', (req, res) => {
-  const user = { id: Date.now(), ...req.body };
-  users.push(user);
-  res.json(user);
-});
-
-app.listen(PORT, () => console.log(`Inventory API running on port ${PORT}`));
+// --- Export for Vercel ---
+module.exports = app;
