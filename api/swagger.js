@@ -1,7 +1,6 @@
-const express = require('express');
-const swaggerUi = require('swagger-ui-express');
-
-const router = express.Router();
+const { join } = require('path');
+const fs = require('fs');
+const swaggerUiDist = require('swagger-ui-dist');
 
 const swaggerDocument = {
   openapi: "3.0.4",
@@ -12,7 +11,6 @@ const swaggerDocument = {
     contact: { email: "youremail@example.com" },
   },
   servers: [{ url: "/", description: "Vercel serverless root" }],
-  tags: [{ name: "products", description: "Operations about products" }],
   paths: {
     "/products": {
       get: { tags: ["products"], summary: "Get all products" },
@@ -26,10 +24,23 @@ const swaggerDocument = {
   }
 };
 
-// Swagger JSON
-router.get('/swagger.json', (req, res) => res.json(swaggerDocument));
+// Export the Vercel function
+module.exports = async (req, res) => {
+  const { url } = req;
 
-// Swagger UI
-router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  // Serve Swagger JSON
+  if (url === '/api/swagger.json') {
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify(swaggerDocument, null, 2));
+  }
 
-module.exports = router;
+  // Serve Swagger UI
+  const swaggerHtmlPath = join(swaggerUiDist.getAbsoluteFSPath(), 'index.html');
+  let html = fs.readFileSync(swaggerHtmlPath, 'utf8');
+
+  // Inject URL for our JSON spec
+  html = html.replace('https://petstore.swagger.io/v2/swagger.json', '/api/swagger.json');
+
+  res.setHeader('Content-Type', 'text/html');
+  return res.end(html);
+};

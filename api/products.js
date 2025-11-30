@@ -1,45 +1,49 @@
-const express = require('express');
 const mongoose = require('mongoose');
 
-const router = express.Router();
-
-// Only define schema/model once
 const productSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  quantity: { type: Number, required: true },
-  price: { type: Number, required: true }
+  name: String,
+  quantity: Number,
+  price: Number
 });
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
-// --- CRUD Routes ---
-router.get('/products', async (req, res) => {
-  const products = await Product.find();
-  res.json(products);
-});
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
-router.get('/products/:id', async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (!product) return res.status(404).json({ message: "Product not found" });
-  res.json(product);
-});
+module.exports = async (req, res) => {
+  const { method, query, body } = req;
 
-router.post('/products', async (req, res) => {
-  const { name, quantity, price } = req.body;
-  const newProduct = new Product({ name, quantity, price });
-  await newProduct.save();
-  res.status(201).json(newProduct);
-});
+  try {
+    if (method === 'GET' && query.id) {
+      const product = await Product.findById(query.id);
+      if (!product) return res.status(404).json({ message: "Product not found" });
+      return res.json(product);
+    }
 
-router.put('/products/:id', async (req, res) => {
-  const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-  if (!updated) return res.status(404).json({ message: "Product not found" });
-  res.json(updated);
-});
+    if (method === 'GET') {
+      const products = await Product.find();
+      return res.json(products);
+    }
 
-router.delete('/products/:id', async (req, res) => {
-  const deleted = await Product.findByIdAndDelete(req.params.id);
-  if (!deleted) return res.status(404).json({ message: "Product not found" });
-  res.json({ message: "Product deleted successfully" });
-});
+    if (method === 'POST') {
+      const newProduct = new Product(body);
+      await newProduct.save();
+      return res.status(201).json(newProduct);
+    }
 
-module.exports = router;
+    if (method === 'PUT' && query.id) {
+      const updated = await Product.findByIdAndUpdate(query.id, body, { new: true, runValidators: true });
+      if (!updated) return res.status(404).json({ message: "Product not found" });
+      return res.json(updated);
+    }
+
+    if (method === 'DELETE' && query.id) {
+      const deleted = await Product.findByIdAndDelete(query.id);
+      if (!deleted) return res.status(404).json({ message: "Product not found" });
+      return res.json({ message: "Product deleted successfully" });
+    }
+
+    res.status(405).json({ message: "Method not allowed" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
