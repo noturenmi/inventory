@@ -1,0 +1,25 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Inventory API",
+    "version": "1.0.2",
+    "description": "Inventory API with products, suppliers, orders, and stock status.",
+    "contact": { "email": "youremail@example.com" }
+  },
+  "servers": [
+    { "url": "http://localhost:3000", "description": "Local server" }
+  ],
+  "tags": [
+    { "name": "products", "description": "Operations about products" }
+  ],
+  "paths": {
+    "/products": {
+      "get": {
+        "tags": ["products"],
+        "summary": "Get all products",
+        "responses": { "200": { "description": "List of products" } }
+      }
+    }
+  },
+  "components": {}
+}
