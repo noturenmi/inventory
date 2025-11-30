@@ -22,7 +22,7 @@ const productSchema = new mongoose.Schema({
   quantity: { type: Number, required: true },
   price: { type: Number, required: true }
 });
-const Product = mongoose.model('Product', productSchema);
+const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
 // --- Swagger Spec ---
 const swaggerDocument = {
@@ -31,21 +31,19 @@ const swaggerDocument = {
     title: "Inventory API",
     version: "1.0.3",
     description: "Inventory API with products, suppliers, orders, and stock status.",
-    contact: { email: "youremail@example.com" },
+    contact: { email: "youremail@example.com" }
   },
   servers: [{ url: `http://localhost:${PORT}`, description: "Local server" }],
-  tags: [
-    { name: "products", description: "Operations about products" },
-  ],
+  tags: [{ name: "products", description: "Operations about products" }],
   paths: {
     "/products": {
-      get: { tags: ["products"], summary: "Get all products", responses: { "200": { description: "List of products" } } },
-      post: { tags: ["products"], summary: "Add a new product", requestBody: { required: true }, responses: { "201": { description: "Product created" } } }
+      get: { tags: ["products"], summary: "Get all products" },
+      post: { tags: ["products"], summary: "Add a new product", requestBody: { required: true } }
     },
     "/products/{id}": {
-      get: { tags: ["products"], summary: "Get product by ID" },
-      put: { tags: ["products"], summary: "Update product by ID" },
-      delete: { tags: ["products"], summary: "Delete product by ID" }
+      get: { tags: ["products"], summary: "Get product by ID", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }] },
+      put: { tags: ["products"], summary: "Update product by ID", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }] },
+      delete: { tags: ["products"], summary: "Delete product by ID", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }] }
     }
   }
 };
@@ -54,7 +52,7 @@ const swaggerDocument = {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // --- Routes ---
-app.get('/', (req, res) => res.send('📦 Inventory API running!'));
+app.get('/', (req, res) => res.send('📦 Inventory API running! Visit /api-docs for docs.'));
 
 // Get all products
 app.get('/products', async (req, res) => {
@@ -111,9 +109,9 @@ app.delete('/products/:id', async (req, res) => {
   }
 });
 
-// --- Start server for local testing ---
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => console.log(`Local API running at http://localhost:${PORT}`));
+// --- Start server ---
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => console.log(`✔ Local API running at http://localhost:${PORT}`));
 }
 
 // --- Export for Vercel ---
