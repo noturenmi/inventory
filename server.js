@@ -7,19 +7,18 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
+// --- Middleware ---
 app.use(express.json());
+app.use(cors());
 
-// MongoDB connection (Atlas)
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('✔ Connected to MongoDB Atlas'))
-.catch(err => console.error('✖ MongoDB connection error:', err));
+// --- MongoDB Connection ---
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/inventory';
 
-// Mongoose Schema
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('✔ Connected to MongoDB'))
+  .catch(err => console.error('✖ MongoDB connection error:', err));
+
+// --- Mongoose Schema ---
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   quantity: { type: Number, required: true },
@@ -27,28 +26,32 @@ const productSchema = new mongoose.Schema({
 });
 const Product = mongoose.model('Product', productSchema);
 
-// Swagger spec
+// --- Swagger Spec ---
 const swaggerDocument = {
   openapi: "3.0.4",
   info: {
     title: "Inventory API",
     version: "1.0.3",
-    description: "Inventory API for products. Hosted on Vercel + MongoDB Atlas.",
+    description: "Inventory API with products, suppliers, orders, and stock status.",
+    contact: { email: "youremail@example.com" },
   },
-  servers: [{ url: `https://zentiels-inventory.vercel.app/`, description: "Vercel server" }],
-  tags: [{ name: "products", description: "Product operations" }],
+  servers: [{ url: "/", description: "Server root (Vercel or local)" }],
+  tags: [{ name: "products", description: "Operations about products" }],
   paths: {
     "/products": {
       get: {
         tags: ["products"],
         summary: "Get all products",
         responses: {
-          "200": { description: "List of products" }
+          "200": {
+            description: "List of products",
+            content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/Product" } } } }
+          }
         }
       },
       post: {
         tags: ["products"],
-        summary: "Add a product",
+        summary: "Add a new product",
         requestBody: { required: true },
         responses: { "201": { description: "Product created" } }
       }
@@ -58,49 +61,66 @@ const swaggerDocument = {
       put: { tags: ["products"], summary: "Update product by ID" },
       delete: { tags: ["products"], summary: "Delete product by ID" }
     }
+  },
+  components: {
+    schemas: {
+      Product: {
+        type: "object",
+        properties: { id: { type: "string" }, name: { type: "string" }, quantity: { type: "integer" }, price: { type: "number" } }
+      }
+    }
   }
 };
 
-// Swagger UI
+// --- Swagger UI ---
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Routes
-app.get('/', (req, res) => res.send('📦 Inventory API running! Visit /api-docs'));
+// --- Routes ---
+app.get('/', (req, res) => res.send('📦 Inventory API running! Visit /api-docs for docs.'));
 
-// CRUD routes
+// Get all products
 app.get('/products', async (req, res) => {
-  const products = await Product.find();
-  res.json(products);
+  try { const products = await Product.find(); res.json(products); }
+  catch (err) { res.status(500).json({ code: "500", message: "Internal Server Error" }); }
 });
 
+// Get product by ID
 app.get('/products/:id', async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (!product) return res.status(404).json({ message: "Product not found" });
-  res.json(product);
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ code: "404", message: "Product not found" });
+    res.json(product);
+  } catch (err) { res.status(500).json({ code: "500", message: "Internal Server Error" }); }
 });
 
+// Create product
 app.post('/products', async (req, res) => {
-  const newProduct = new Product(req.body);
-  await newProduct.save();
-  res.status(201).json(newProduct);
+  try { const { name, quantity, price } = req.body; const newProduct = new Product({ name, quantity, price }); await newProduct.save(); res.status(201).json(newProduct); }
+  catch (err) { res.status(400).json({ code: "400", message: "Invalid product data" }); }
 });
 
+// Update product
 app.put('/products/:id', async (req, res) => {
-  const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-  if (!updated) return res.status(404).json({ message: "Product not found" });
-  res.json(updated);
+  try {
+    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updated) return res.status(404).json({ code: "404", message: "Product not found" });
+    res.json(updated);
+  } catch (err) { res.status(400).json({ code: "400", message: "Invalid product data" }); }
 });
 
+// Delete product
 app.delete('/products/:id', async (req, res) => {
-  const deleted = await Product.findByIdAndDelete(req.params.id);
-  if (!deleted) return res.status(404).json({ message: "Product not found" });
-  res.json({ message: "Product deleted successfully" });
+  try {
+    const deleted = await Product.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ code: "404", message: "Product not found" });
+    res.json({ message: "Product deleted successfully" });
+  } catch (err) { res.status(500).json({ code: "500", message: "Internal Server Error" }); }
 });
 
-// Export for Vercel serverless
-module.exports = app;
-
-// Optional: run locally
-if (require.main === module) {
+// --- Start server locally ---
+if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => console.log(`✔ Local API running at http://localhost:${PORT}`));
 }
+
+// --- Export for Vercel ---
+module.exports = app;
