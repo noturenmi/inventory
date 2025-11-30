@@ -2,7 +2,7 @@ export default function handler(req, res) {
   res.status(200).json({
     openapi: "3.0.4",
     info: { title: "Inventory API", version: "1.0.3", description: "Inventory API with products and stock status." },
-    servers: [{ url: "https://<your-vercel-domain>" }],
+    servers: [{ url: "https://zentiels-inventory.vercel.app" }],
     tags: [
       { name: "products", description: "Operations about products" },
       { name: "inventory", description: "Check stock levels" },
