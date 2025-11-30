@@ -1,8 +1,8 @@
-const swaggerUi = require('swagger-ui-express');
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+
 const router = express.Router();
 
-// Swagger JSON
 const swaggerDocument = {
   openapi: "3.0.4",
   info: {
@@ -12,6 +12,7 @@ const swaggerDocument = {
     contact: { email: "youremail@example.com" },
   },
   servers: [{ url: "/", description: "Vercel serverless root" }],
+  tags: [{ name: "products", description: "Operations about products" }],
   paths: {
     "/products": {
       get: { tags: ["products"], summary: "Get all products" },
@@ -25,10 +26,10 @@ const swaggerDocument = {
   }
 };
 
-// Serve JSON
+// Swagger JSON
 router.get('/swagger.json', (req, res) => res.json(swaggerDocument));
 
-// Serve Swagger UI
+// Swagger UI
 router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 module.exports = router;

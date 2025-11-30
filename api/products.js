@@ -1,21 +1,17 @@
 const express = require('express');
 const mongoose = require('mongoose');
-require('dotenv').config();
 
 const router = express.Router();
 
-// Connect MongoDB (Vercel environment must have MONGO_URI set)
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-
-// Mongoose Schema
+// Only define schema/model once
 const productSchema = new mongoose.Schema({
-  name: String,
-  quantity: Number,
-  price: Number
+  name: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  price: { type: Number, required: true }
 });
-const Product = mongoose.model('Product', productSchema);
+const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
-// Routes
+// --- CRUD Routes ---
 router.get('/products', async (req, res) => {
   const products = await Product.find();
   res.json(products);
@@ -35,7 +31,7 @@ router.post('/products', async (req, res) => {
 });
 
 router.put('/products/:id', async (req, res) => {
-  const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
   if (!updated) return res.status(404).json({ message: "Product not found" });
   res.json(updated);
 });
