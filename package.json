@@ -1,11 +1,10 @@
 {
-  "name": "inventory-api",
+ "name": "inventory-api",
   "version": "1.0.0",
-  "description": "Inventory Management API with Swagger documentation",
+  "description": "Inventory Management API with Swagger",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
