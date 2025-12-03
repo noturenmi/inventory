@@ -2,11 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/swagger', express.static(path.join(__dirname, 'public/swagger')));
 
 // --- MongoDB Connection ---
 // Connect once per serverless instance (avoids multiple connections in Vercel)
@@ -104,7 +106,13 @@ const swaggerDocument = {
   },
 };
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(null, {
+    swaggerUrl: '/swagger/swagger.json'
+  })
+);
 
 // --- Export for Vercel ---
 module.exports = app;
