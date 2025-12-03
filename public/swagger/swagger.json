@@ -13,25 +13,31 @@
   ],
   "paths": {
     "/products": {
-      "get": {
-        "summary": "Get all products",
-        "responses": {
-          "200": { "description": "List of products" }
-        }
-      },
-      "post": {
-        "summary": "Create a new product",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/Product" }
-            }
+  "post": {
+    "summary": "Create a new product",
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "quantity": { "type": "number" },
+              "price": { "type": "number" },
+              "stock": { "type": "number" }
+            },
+            "required": ["name", "quantity", "price", "stock"]
           }
-        },
-        "responses": { "201": { "description": "Product created" } }
+        }
       }
     },
+    "responses": {
+      "201": { "description": "Product created" },
+      "400": { "description": "Invalid product data" }
+    }
+  }
+},
     "/products/{id}": {
       "get": {
         "summary": "Get a product by ID",
