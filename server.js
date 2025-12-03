@@ -22,7 +22,8 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/inventory',
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   quantity: { type: Number, required: true },
-  price: { type: Number, required: true }
+  price: { type: Number, required: true },
+  stock: { type: Number, required: true } // added field
 });
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
