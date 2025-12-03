@@ -1,40 +1,88 @@
 import mongoose from "mongoose";
 
-const uri = process.env.MONGO_URI;
+// MongoDB connection
+const MONGO_URI = process.env.MONGO_URI;
 
-if (!global.mongoose) {
-  global.mongoose = mongoose.connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  });
+if (!MONGO_URI) {
+  throw new Error("Please define the MONGO_URI environment variable inside Vercel.");
 }
 
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+async function dbConnect() {
+  if (cached.conn) return cached.conn;
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGO_URI).then((mongoose) => mongoose);
+  }
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+
+// Mongoose Schema
 const productSchema = new mongoose.Schema({
-  name: String,
-  quantity: Number,
-  price: Number
+  name: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  price: { type: Number, required: true }
 });
 
 const Product = mongoose.models.Product || mongoose.model("Product", productSchema);
 
+// Helper to parse request body
+async function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = "";
+    req.on("data", chunk => body += chunk);
+    req.on("end", () => resolve(JSON.parse(body || "{}")));
+    req.on("error", reject);
+  });
+}
+
+// Main handler
 export default async function handler(req, res) {
-  await global.mongoose;
-  const { method } = req;
+  await dbConnect();
+
+  const { method, query } = req;
 
   try {
-    if (method === "GET") {
-      const items = await Product.find();
-      return res.status(200).json(items);
-    }
+    switch (method) {
+      case "GET":
+        if (query.id) {
+          const product = await Product.findById(query.id);
+          if (!product) return res.status(404).json({ message: "Product not found" });
+          return res.status(200).json(product);
+        } else {
+          const products = await Product.find();
+          return res.status(200).json(products);
+        }
 
-    if (method === "POST") {
-      const item = new Product(req.body);
-      await item.save();
-      return res.status(201).json(item);
-    }
+      case "POST":
+        const postData = await parseBody(req);
+        const newProduct = new Product(postData);
+        await newProduct.save();
+        return res.status(201).json(newProduct);
 
-    res.status(405).json({ message: "Method not allowed" });
+      case "PUT":
+        if (!query.id) return res.status(400).json({ message: "Missing product ID" });
+        const putData = await parseBody(req);
+        const updated = await Product.findByIdAndUpdate(query.id, putData, { new: true, runValidators: true });
+        if (!updated) return res.status(404).json({ message: "Product not found" });
+        return res.status(200).json(updated);
+
+      case "DELETE":
+        if (!query.id) return res.status(400).json({ message: "Missing product ID" });
+        const deleted = await Product.findByIdAndDelete(query.id);
+        if (!deleted) return res.status(404).json({ message: "Product not found" });
+        return res.status(200).json({ message: "Product deleted successfully" });
+
+      default:
+        res.setHeader("Allow", ["GET", "POST", "PUT", "DELETE"]);
+        return res.status(405).end(`Method ${method} Not Allowed`);
+    }
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ message: err.message });
   }
 }
