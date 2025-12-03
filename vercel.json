@@ -3,11 +3,11 @@
   "routes": [
     {
       "src": "/swagger/(.*)",
-      "dest": "/public/swagger/$1"
+      "dest": "/swagger/$1"
     },
     {
       "src": "/swagger",
-      "dest": "/public/swagger/index.html"
+      "dest": "/swagger/index.html"
     }
   ]
 }
