@@ -1,12 +1,10 @@
 {
   "version": 2,
   "functions": {
-    "api/*.js": {
-      "runtime": "nodejs18.x"
-    }
+    "api/*.js": { "runtime": "nodejs18.x" }
   },
   "routes": [
-    { "src": "/swagger", "dest": "/api/swagger" },
-    { "src": "/swagger/(.*)", "dest": "/api/swagger/$1" }
+    { "src": "/swagger", "dest": "/api/swagger.js" },
+    { "src": "/swagger/(.*)", "dest": "/api/swagger.js" }
   ]
 }
