@@ -1,8 +1,11 @@
-const swaggerUi = require('swagger-ui-express');
-const express = require('express');
-const swaggerDocument = require('../public/swagger/swagger.json');
+import path from "path";
+import { fileURLToPath } from "url";
 
-const router = express();
-router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+export default function handler(req, res) {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
 
-module.exports = router;
+  const filePath = path.join(__dirname, "..", "public", "swagger", "swagger.json");
+  res.setHeader("Content-Type", "application/json");
+  res.sendFile(filePath);
+}
