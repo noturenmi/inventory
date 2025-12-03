@@ -1,6 +1,8 @@
-const swagger = require('../public/swagger/swagger.json');
+const swaggerUi = require('swagger-ui-express');
+const express = require('express');
+const swaggerDocument = require('../public/swagger/swagger.json');
 
-module.exports = (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.status(200).json(swagger);
-};
+const router = express();
+router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+module.exports = router;

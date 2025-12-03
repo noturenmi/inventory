@@ -1,37 +1,30 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 
-const Product = mongoose.models.Product || mongoose.model(
-  "Product",
-  new mongoose.Schema({
-    name: { type: String, required: true },
-    quantity: { type: Number, required: true },
-    price: { type: Number, required: true },
-  })
-);
+mongoose.connect(process.env.MONGO_URI);
 
-async function connect() {
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGO_URI);
-  }
-}
+const productSchema = new mongoose.Schema({
+  name: String,
+  description: String,
+  price: Number,
+  stock: Number,
+  supplierId: String
+});
 
-export default async function handler(req, res) {
-  await connect();
+const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
-  if (req.method === "GET") {
-    const products = await Product.find();
-    return res.status(200).json(products);
-  }
+module.exports = async (req, res) => {
+  const { method } = req;
 
-  if (req.method === "POST") {
-    try {
+  switch (method) {
+    case 'GET':
+      const products = await Product.find();
+      return res.status(200).json(products);
+    case 'POST':
       const newProduct = new Product(req.body);
       await newProduct.save();
       return res.status(201).json(newProduct);
-    } catch {
-      return res.status(400).json({ message: "Invalid product data" });
-    }
+    default:
+      res.setHeader('Allow', ['GET', 'POST']);
+      return res.status(405).end(`Method ${method} Not Allowed`);
   }
-
-  res.status(405).json({ message: "Method not allowed" });
-}
+};
