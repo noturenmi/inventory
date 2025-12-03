@@ -1,12 +1,8 @@
-const express = require('express');
-const swaggerUi = require('swagger-ui-express');
-const router = express.Router();
-
 const swaggerDocument = {
   openapi: "3.0.4",
   info: {
     title: "Inventory API",
-    version: "1.0.3",
+    version: "1.0.0",
     description: "Inventory API with products",
     contact: { email: "youremail@example.com" },
   },
@@ -24,9 +20,6 @@ const swaggerDocument = {
   }
 };
 
-router.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-const app = express();
-app.use(router);
-
-module.exports = app;
+module.exports = (req, res) => {
+  res.status(200).json(swaggerDocument);
+};
