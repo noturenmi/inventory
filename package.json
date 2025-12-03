@@ -1,19 +1,27 @@
 {
   "name": "inventory-api",
   "version": "1.0.0",
-  "description": "Inventory API deployed on Vercel with Swagger documentation",
-  "type": "module",
+  "description": "Inventory Management API with Swagger documentation",
+  "main": "server.js",
   "scripts": {
-    "dev": "vercel dev"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "dependencies": {
-    "mongoose": "^8.0.0"
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "mongoose": "^9.0.0",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/noturenmi/inventory.git"
   },
-  "keywords": [],
+  "keywords": ["inventory", "api", "swagger", "express", "mongodb"],
   "author": "",
   "license": "ISC",
   "bugs": {
