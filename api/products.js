@@ -3,10 +3,11 @@ const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO_URI);
 
 const productSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  quantity: { type: Number, required: true },
-  price: { type: Number, required: true },
-  stock: { type: Number, required: true }
+  name: String,
+  description: String,
+  price: Number,
+  stock: Number,
+  supplierId: String
 });
 
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
