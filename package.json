@@ -1,19 +1,13 @@
 {
   "name": "inventory-api",
   "version": "1.0.0",
-  "description": "Inventory API with Swagger documentation",
-  "main": "server.js",
+  "description": "Inventory API deployed on Vercel with Swagger documentation",
+  "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "dev": "vercel dev"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^4.21.2",
-    "mongoose": "^9.0.0",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
-    "yamljs": "^0.3.0"
+    "mongoose": "^8.0.0"
   },
   "repository": {
     "type": "git",

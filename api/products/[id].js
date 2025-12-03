@@ -19,21 +19,28 @@ const Product = mongoose.models.Product || mongoose.model("Product", productSche
 
 export default async function handler(req, res) {
   await global.mongoose;
+
+  const { id } = req.query;
   const { method } = req;
 
   try {
     if (method === "GET") {
-      const items = await Product.find();
-      return res.status(200).json(items);
+      const product = await Product.findById(id);
+      if (!product) return res.status(404).json({ message: "Not found" });
+      return res.status(200).json(product);
     }
 
-    if (method === "POST") {
-      const item = new Product(req.body);
-      await item.save();
-      return res.status(201).json(item);
+    if (method === "PUT") {
+      const updated = await Product.findByIdAndUpdate(id, req.body, { new: true });
+      return res.status(200).json(updated);
     }
 
-    res.status(405).json({ message: "Method not allowed" });
+    if (method === "DELETE") {
+      await Product.findByIdAndDelete(id);
+      return res.status(200).json({ message: "Deleted successfully" });
+    }
+
+    res.status(405).json({ message: "Not allowed" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
