@@ -2,22 +2,24 @@
   "openapi": "3.0.4",
   "info": {
     "title": "Inventory API",
-    "version": "1.0.3",
+    "version": "1.0.0",
     "description": "Inventory API with products",
-    "contact": { "email": "youremail@example.com" }
+    "contact": {
+      "email": "youremail@example.com"
+    }
   },
   "servers": [
-    { "url": "/", "description": "Vercel serverless root" }
+    { "url": "/api", "description": "Vercel serverless root" }
   ],
   "paths": {
     "/products": {
-      "get": { "tags": ["products"], "summary": "Get all products" },
-      "post": { "tags": ["products"], "summary": "Add a new product" }
+      "get": { "summary": "Get all products", "tags": ["products"] },
+      "post": { "summary": "Add a new product", "tags": ["products"] }
     },
     "/products/{id}": {
-      "get": { "tags": ["products"], "summary": "Get product by ID" },
-      "put": { "tags": ["products"], "summary": "Update product by ID" },
-      "delete": { "tags": ["products"], "summary": "Delete product by ID" }
+      "get": { "summary": "Get product by ID", "tags": ["products"] },
+      "put": { "summary": "Update product by ID", "tags": ["products"] },
+      "delete": { "summary": "Delete product by ID", "tags": ["products"] }
     }
   }
 }
