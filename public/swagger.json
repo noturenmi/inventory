@@ -68,7 +68,7 @@
       "get": {
         "tags": ["products"],
         "summary": "Get product by ID",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
         "responses": {
           "200": { "description": "Product found", "content": { "application/json": { "example": { "id": 1, "name": "Laptop", "quantity": 10, "price": 1200.5 } } } },
           "404": { "description": "Product not found", "content": { "application/json": { "example": { "code": "404", "message": "Product not found" } } } }
@@ -77,7 +77,7 @@
       "put": {
         "tags": ["products"],
         "summary": "Update product by ID",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
         "requestBody": {
           "required": true,
           "content": {
