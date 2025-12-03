@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
-const { VercelRequest, VercelResponse } = require("@vercel/node");
 
 mongoose.set("strictQuery", false);
 
+// Connect to MongoDB only once per serverless instance
 if (!mongoose.connection.readyState) {
   mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -10,26 +10,52 @@ if (!mongoose.connection.readyState) {
   });
 }
 
+// Define Product schema
 const productSchema = new mongoose.Schema({
-  name: String,
-  quantity: Number,
-  price: Number
+  name: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  price: { type: Number, required: true }
 });
 
 const Product = mongoose.models.Product || mongoose.model("Product", productSchema);
 
+// Serverless handler
 module.exports = async (req, res) => {
+  const { method, query, body } = req;
+  const { id } = query;
+
   try {
-    if (req.method === "GET") {
-      const products = await Product.find();
-      return res.status(200).json(products);
+    switch (method) {
+      case "GET":
+        if (id) {
+          const product = await Product.findById(id);
+          if (!product) return res.status(404).json({ message: "Product not found" });
+          return res.status(200).json(product);
+        }
+        const products = await Product.find();
+        return res.status(200).json(products);
+
+      case "POST":
+        const newProduct = new Product(body);
+        await newProduct.save();
+        return res.status(201).json(newProduct);
+
+      case "PUT":
+        if (!id) return res.status(400).json({ message: "Product ID required" });
+        const updated = await Product.findByIdAndUpdate(id, body, { new: true, runValidators: true });
+        if (!updated) return res.status(404).json({ message: "Product not found" });
+        return res.status(200).json(updated);
+
+      case "DELETE":
+        if (!id) return res.status(400).json({ message: "Product ID required" });
+        const deleted = await Product.findByIdAndDelete(id);
+        if (!deleted) return res.status(404).json({ message: "Product not found" });
+        return res.status(200).json({ message: "Product deleted successfully" });
+
+      default:
+        res.setHeader("Allow", ["GET", "POST", "PUT", "DELETE"]);
+        return res.status(405).json({ message: `Method ${method} Not Allowed` });
     }
-    if (req.method === "POST") {
-      const newProduct = new Product(req.body);
-      await newProduct.save();
-      return res.status(201).json(newProduct);
-    }
-    return res.status(405).json({ message: "Method not allowed" });
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
