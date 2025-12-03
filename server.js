@@ -8,111 +8,70 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use('/swagger', express.static(path.join(__dirname, 'public/swagger')));
+
+// Serve static files (IMPORTANT)
+app.use(express.static("public"));
 
 // --- MongoDB Connection ---
-// Connect once per serverless instance (avoids multiple connections in Vercel)
 if (!mongoose.connection.readyState) {
   mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
-  .then(() => console.log('✔ Connected to MongoDB'))
-  .catch(err => console.error('✖ MongoDB connection error:', err));
+  .then(() => console.log("✔ Connected to MongoDB"))
+  .catch(err => console.error("✖ MongoDB connection error:", err));
 }
 
 // --- Mongoose Schema ---
 const productSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  quantity: { type: Number, required: true },
-  price: { type: Number, required: true }
+  name: String,
+  quantity: Number,
+  price: Number
 });
-const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
+const Product = mongoose.models.Product || mongoose.model("Product", productSchema);
 
 // --- Routes ---
-// Home
-app.get('/', (req, res) => res.send('📦 Inventory API running! Visit /api-docs for docs.'));
-
-// Products
-app.get('/products', async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.json(products);
-  } catch {
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
+app.get("/", (req, res) => {
+  res.send("📦 Inventory API is running! Visit /api-docs for documentation.");
 });
 
-app.get('/products/:id', async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ message: 'Product not found' });
-    res.json(product);
-  } catch {
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
+// Products Endpoints
+app.get("/products", async (req, res) => {
+  const items = await Product.find();
+  res.json(items);
 });
 
-app.post('/products', async (req, res) => {
-  try {
-    const newProduct = new Product(req.body);
-    await newProduct.save();
-    res.status(201).json(newProduct);
-  } catch {
-    res.status(400).json({ message: 'Invalid product data' });
-  }
+app.get("/products/:id", async (req, res) => {
+  const item = await Product.findById(req.params.id);
+  if (!item) return res.status(404).json({ message: "Product not found" });
+  res.json(item);
 });
 
-app.put('/products/:id', async (req, res) => {
-  try {
-    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!updated) return res.status(404).json({ message: 'Product not found' });
-    res.json(updated);
-  } catch {
-    res.status(400).json({ message: 'Invalid product data' });
-  }
+app.post("/products", async (req, res) => {
+  const newItem = new Product(req.body);
+  await newItem.save();
+  res.status(201).json(newItem);
 });
 
-app.delete('/products/:id', async (req, res) => {
-  try {
-    const deleted = await Product.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: 'Product not found' });
-    res.json({ message: 'Product deleted successfully' });
-  } catch {
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
+app.put("/products/:id", async (req, res) => {
+  const updated = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true
+  });
+  if (!updated) return res.status(404).json({ message: "Product not found" });
+  res.json(updated);
 });
 
-// --- Swagger Setup ---
-const swaggerDocument = {
-  openapi: '3.0.4',
-  info: {
-    title: 'Inventory API',
-    version: '1.0.4',
-    description: 'Inventory API with products',
-    contact: { email: 'youremail@example.com' },
-  },
-  servers: [{ url: '/', description: 'Vercel serverless root' }],
-  paths: {
-    '/products': {
-      get: { tags: ['products'], summary: 'Get all products' },
-      post: { tags: ['products'], summary: 'Add a new product' },
-    },
-    '/products/{id}': {
-      get: { tags: ['products'], summary: 'Get product by ID' },
-      put: { tags: ['products'], summary: 'Update product by ID' },
-      delete: { tags: ['products'], summary: 'Delete product by ID' },
-    },
-  },
-};
+app.delete("/products/:id", async (req, res) => {
+  const deleted = await Product.findByIdAndDelete(req.params.id);
+  if (!deleted) return res.status(404).json({ message: "Product not found" });
+  res.json({ message: "Product deleted" });
+});
 
-app.use(
-  '/api-docs',
-  swaggerUi.serve,
-  swaggerUi.setup(null, {
-    swaggerUrl: '/swagger/swagger.json'
-  })
-);
+// --- Swagger ---
+const swaggerJsonPath = path.join(__dirname, "public/swagger/swagger.json");
+const swaggerDocument = require(swaggerJsonPath);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // --- Export for Vercel ---
 module.exports = app;
