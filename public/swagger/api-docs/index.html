@@ -1,21 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Inventory API Docs</title>
-  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui.css" />
 </head>
 <body>
   <div id="swagger-ui"></div>
   <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui-bundle.js"></script>
   <script>
-    SwaggerUIBundle({
-      url: "/api/swagger", // this points to your API route
-      dom_id: '#swagger-ui',
+    const ui = SwaggerUIBundle({
+      url: "public/swagger.json",       // ✅ Must match public/swagger.json
+      dom_id: "#swagger-ui",
+      deepLinking: true,
       presets: [
         SwaggerUIBundle.presets.apis,
         SwaggerUIBundle.SwaggerUIStandalonePreset
       ],
-      layout: "BaseLayout",
+      layout: "BaseLayout"
     });
   </script>
 </body>
