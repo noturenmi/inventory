@@ -1,30 +1,20 @@
-const mongoose = require('mongoose');
+// Inside /api/products.js
+export default async function handler(req, res) {
+  if (req.method === 'POST') {
+    try {
+      const { name, quantity, price, stock } = req.body;
 
-mongoose.connect(process.env.MONGO_URI);
+      if (!name || quantity == null || price == null || stock == null) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
 
-const productSchema = new mongoose.Schema({
-  name: String,
-  description: String,
-  price: Number,
-  stock: Number,
-  supplierId: String
-});
-
-const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
-
-module.exports = async (req, res) => {
-  const { method } = req;
-
-  switch (method) {
-    case 'GET':
-      const products = await Product.find();
-      return res.status(200).json(products);
-    case 'POST':
-      const newProduct = new Product(req.body);
+      const newProduct = new Product({ name, quantity, price, stock });
       await newProduct.save();
       return res.status(201).json(newProduct);
-    default:
-      res.setHeader('Allow', ['GET', 'POST']);
-      return res.status(405).end(`Method ${method} Not Allowed`);
+    } catch (err) {
+      return res.status(400).json({ message: 'Invalid product data' });
+    }
+  } else {
+    res.status(405).json({ message: 'Method not allowed' });
   }
-};
+}
