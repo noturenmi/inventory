@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "/",
+      "url":  "/swagger/swagger.json",
       "description": "Vercel Serverless Root"
     }
   ],

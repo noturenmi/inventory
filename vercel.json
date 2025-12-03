@@ -1,10 +1,6 @@
 {
   "version": 2,
-  "functions": {
-    "api/*.js": { "runtime": "nodejs18.x" }
-  },
-  "routes": [
-    { "src": "/swagger", "dest": "/public/swagger/index.html" },
-    { "src": "/swagger/(.*)", "dest": "/public/swagger/$1" }
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" }
   ]
 }
