@@ -1,52 +1,37 @@
-const mongoose = require('mongoose');
-const { json } = require('micro'); // for Vercel serverless
-require('dotenv').config();
+import mongoose from "mongoose";
 
-const MONGO_URI = process.env.MONGO_URI;
+const Product = mongoose.models.Product || mongoose.model(
+  "Product",
+  new mongoose.Schema({
+    name: { type: String, required: true },
+    quantity: { type: Number, required: true },
+    price: { type: Number, required: true },
+  })
+);
 
-let Product;
-
-// Connect to MongoDB
-async function connectDB() {
+async function connect() {
   if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-    const productSchema = new mongoose.Schema({
-      name: { type: String, required: true },
-      quantity: { type: Number, required: true },
-      price: { type: Number, required: true }
-    });
-    Product = mongoose.models.Product || mongoose.model('Product', productSchema);
+    await mongoose.connect(process.env.MONGO_URI);
   }
 }
 
-// Serverless handler
-module.exports = async (req, res) => {
-  await connectDB();
+export default async function handler(req, res) {
+  await connect();
 
-  const { method, query } = req;
-
-  if (method === 'GET' && !query.id) {
+  if (req.method === "GET") {
     const products = await Product.find();
-    res.status(200).json(products);
-  } else if (method === 'GET' && query.id) {
-    const product = await Product.findById(query.id);
-    if (!product) return res.status(404).json({ message: 'Product not found' });
-    res.status(200).json(product);
-  } else if (method === 'POST') {
-    const body = await json(req);
-    const newProduct = new Product(body);
-    await newProduct.save();
-    res.status(201).json(newProduct);
-  } else if (method === 'PUT' && query.id) {
-    const body = await json(req);
-    const updated = await Product.findByIdAndUpdate(query.id, body, { new: true, runValidators: true });
-    if (!updated) return res.status(404).json({ message: 'Product not found' });
-    res.status(200).json(updated);
-  } else if (method === 'DELETE' && query.id) {
-    const deleted = await Product.findByIdAndDelete(query.id);
-    if (!deleted) return res.status(404).json({ message: 'Product not found' });
-    res.status(200).json({ message: 'Product deleted successfully' });
-  } else {
-    res.status(405).json({ message: 'Method Not Allowed' });
+    return res.status(200).json(products);
   }
-};
+
+  if (req.method === "POST") {
+    try {
+      const newProduct = new Product(req.body);
+      await newProduct.save();
+      return res.status(201).json(newProduct);
+    } catch {
+      return res.status(400).json({ message: "Invalid product data" });
+    }
+  }
+
+  res.status(405).json({ message: "Method not allowed" });
+}
