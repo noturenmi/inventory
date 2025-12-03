@@ -12,14 +12,14 @@
   <script>
     window.onload = () => {
       SwaggerUIBundle({
-  url: "/api/swagger",
-  dom_id: "#swagger-ui",
-  presets: [
-    SwaggerUIBundle.presets.apis,
-    SwaggerUIBundle.SwaggerUIStandalonePreset
-  ],
-  layout: "BaseLayout"
-});
+        url: "/swagger/swagger.json",
+        dom_id: "#swagger-ui",
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        layout: "BaseLayout"
+      });
     };
   </script>
 </body>
