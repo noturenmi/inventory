@@ -1,7 +1,17 @@
 {
   "version": 2,
   "routes": [
-    { "src": "/swagger/(.*)", "dest": "/public/swagger/$1" },
-    { "src": "/swagger", "dest": "/public/swagger/index.html" }
+    {
+      "src": "/swagger/swagger.json",
+      "dest": "/public/swagger/swagger.json"
+    },
+    {
+      "src": "/swagger",
+      "dest": "/public/swagger/index.html"
+    },
+    {
+      "src": "/swagger/(.*)",
+      "dest": "/public/swagger/$1"
+    }
   ]
 }

@@ -7,7 +7,7 @@
     "contact": { "email": "youremail@example.com" }
   },
   "servers": [
-    { "url": "/", "description": "Vercel Serverless Root" }
+    { "url":  "/swagger/swagger.json", "description": "Vercel Serverless Root" }
   ],
   "paths": {
     "/products": {
