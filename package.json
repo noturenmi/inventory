@@ -1,8 +1,7 @@
 {
- "name": "inventory-api",
+   "name": "inventory-api",
   "version": "1.0.0",
-  "description": "Inventory Management API with Swagger",
-  "main": "server.js",
+  "description": "Inventory API with Swagger docs",
   "scripts": {
     "start": "node server.js"
   },

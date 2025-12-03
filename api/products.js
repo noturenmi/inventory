@@ -1,82 +1,52 @@
-const express = require('express');
 const mongoose = require('mongoose');
+const { json } = require('micro'); // for Vercel serverless
+require('dotenv').config();
 
-const router = express.Router();
+const MONGO_URI = process.env.MONGO_URI;
 
-// --- Connect MongoDB once per serverless instance ---
-if (!mongoose.connection.readyState) {
-  mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log('✔ Connected to MongoDB'))
-  .catch(err => console.error('✖ MongoDB connection error:', err));
+let Product;
+
+// Connect to MongoDB
+async function connectDB() {
+  if (mongoose.connection.readyState === 0) {
+    await mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    const productSchema = new mongoose.Schema({
+      name: { type: String, required: true },
+      quantity: { type: Number, required: true },
+      price: { type: Number, required: true }
+    });
+    Product = mongoose.models.Product || mongoose.model('Product', productSchema);
+  }
 }
 
-// --- Mongoose Product Schema ---
-const productSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  description: { type: String },
-  price: { type: Number, required: true },
-  stock: { type: Number, required: true },
-  supplierId: { type: String }
-});
-const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
+// Serverless handler
+module.exports = async (req, res) => {
+  await connectDB();
 
-// --- Routes ---
+  const { method, query } = req;
 
-// Get all products
-router.get('/products', async (req, res) => {
-  try {
+  if (method === 'GET' && !query.id) {
     const products = await Product.find();
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-});
-
-// Get product by ID
-router.get('/products/:id', async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
+    res.status(200).json(products);
+  } else if (method === 'GET' && query.id) {
+    const product = await Product.findById(query.id);
     if (!product) return res.status(404).json({ message: 'Product not found' });
-    res.json(product);
-  } catch {
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-});
-
-// Create product
-router.post('/products', async (req, res) => {
-  try {
-    const newProduct = new Product(req.body);
+    res.status(200).json(product);
+  } else if (method === 'POST') {
+    const body = await json(req);
+    const newProduct = new Product(body);
     await newProduct.save();
     res.status(201).json(newProduct);
-  } catch {
-    res.status(400).json({ message: 'Invalid product data' });
-  }
-});
-
-// Update product by ID
-router.put('/products/:id', async (req, res) => {
-  try {
-    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+  } else if (method === 'PUT' && query.id) {
+    const body = await json(req);
+    const updated = await Product.findByIdAndUpdate(query.id, body, { new: true, runValidators: true });
     if (!updated) return res.status(404).json({ message: 'Product not found' });
-    res.json(updated);
-  } catch {
-    res.status(400).json({ message: 'Invalid product data' });
-  }
-});
-
-// Delete product by ID
-router.delete('/products/:id', async (req, res) => {
-  try {
-    const deleted = await Product.findByIdAndDelete(req.params.id);
+    res.status(200).json(updated);
+  } else if (method === 'DELETE' && query.id) {
+    const deleted = await Product.findByIdAndDelete(query.id);
     if (!deleted) return res.status(404).json({ message: 'Product not found' });
-    res.json({ message: 'Product deleted successfully' });
-  } catch {
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(200).json({ message: 'Product deleted successfully' });
+  } else {
+    res.status(405).json({ message: 'Method Not Allowed' });
   }
-});
-
-module.exports = router;
+};
