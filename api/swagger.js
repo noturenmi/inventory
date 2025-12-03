@@ -4,80 +4,20 @@
     "title": "Inventory API",
     "version": "1.0.3",
     "description": "Inventory API with products",
-    "contact": {
-      "email": "youremail@example.com"
-    }
+    "contact": { "email": "youremail@example.com" }
   },
   "servers": [
-    {
-      "url": "/",
-      "description": "Vercel serverless root"
-    }
-  ],
-  "tags": [
-    {
-      "name": "products",
-      "description": "Operations about products"
-    }
+    { "url": "/", "description": "Vercel serverless root" }
   ],
   "paths": {
     "/products": {
-      "get": {
-        "tags": ["products"],
-        "summary": "Get all products",
-        "responses": {
-          "200": {
-            "description": "List of products"
-          }
-        }
-      },
-      "post": {
-        "tags": ["products"],
-        "summary": "Add a new product",
-        "responses": {
-          "201": {
-            "description": "Product created"
-          }
-        }
-      }
+      "get": { "tags": ["products"], "summary": "Get all products" },
+      "post": { "tags": ["products"], "summary": "Add a new product" }
     },
     "/products/{id}": {
-      "get": {
-        "tags": ["products"],
-        "summary": "Get product by ID",
-        "responses": {
-          "200": {
-            "description": "Product found"
-          },
-          "404": {
-            "description": "Product not found"
-          }
-        }
-      },
-      "put": {
-        "tags": ["products"],
-        "summary": "Update product by ID",
-        "responses": {
-          "200": {
-            "description": "Product updated"
-          },
-          "404": {
-            "description": "Product not found"
-          }
-        }
-      },
-      "delete": {
-        "tags": ["products"],
-        "summary": "Delete product by ID",
-        "responses": {
-          "200": {
-            "description": "Product deleted"
-          },
-          "404": {
-            "description": "Product not found"
-          }
-        }
-      }
+      "get": { "tags": ["products"], "summary": "Get product by ID" },
+      "put": { "tags": ["products"], "summary": "Update product by ID" },
+      "delete": { "tags": ["products"], "summary": "Delete product by ID" }
     }
   }
 }
