@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "public": "public",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api/index.js" }
+  "routes": [
+    { "src": "/swagger", "dest": "/api/swagger" },
+    { "src": "/swagger/(.*)", "dest": "/api/swagger/$1" }
   ]
 }
