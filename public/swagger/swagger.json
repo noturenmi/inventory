@@ -1,25 +1,148 @@
 {
   "openapi": "3.0.4",
   "info": {
-    "title": "Inventory API",
+    "title": "Inventory Management API",
     "version": "1.0.0",
-    "description": "Inventory API with products",
-    "contact": {
-      "email": "youremail@example.com"
-    }
+    "description": "API documentation for the Inventory Management System."
   },
   "servers": [
-    { "url": "/api", "description": "Vercel serverless root" }
+    {
+      "url": "http://localhost:3000"
+    }
   ],
   "paths": {
     "/products": {
-      "get": { "summary": "Get all products", "tags": ["products"] },
-      "post": { "summary": "Add a new product", "tags": ["products"] }
+      "get": {
+        "summary": "Get all products",
+        "responses": {
+          "200": {
+            "description": "List of products"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a product",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Product created" }
+        }
+      }
     },
+
     "/products/{id}": {
-      "get": { "summary": "Get product by ID", "tags": ["products"] },
-      "put": { "summary": "Update product by ID", "tags": ["products"] },
-      "delete": { "summary": "Delete product by ID", "tags": ["products"] }
+      "get": {
+        "summary": "Get product by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Product data" },
+          "404": { "description": "Not found" }
+        }
+      },
+      "put": {
+        "summary": "Update product by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Product" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Product updated" },
+          "404": { "description": "Not found" }
+        }
+      },
+      "delete": {
+        "summary": "Delete product by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Product deleted" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+
+    "/suppliers": {
+      "get": {
+        "summary": "Get all suppliers",
+        "responses": {
+          "200": { "description": "List of suppliers" }
+        }
+      }
+    },
+
+    "/orders": {
+      "post": {
+        "summary": "Create an order",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Order" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Order created" }
+        }
+      }
+    }
+  },
+
+  "components": {
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "price": { "type": "number" },
+          "stock": { "type": "integer" },
+          "supplierId": { "type": "string" }
+        },
+        "required": ["name", "price", "stock"]
+      },
+
+      "Order": {
+        "type": "object",
+        "properties": {
+          "productId": { "type": "string" },
+          "quantity": { "type": "integer" }
+        },
+        "required": ["productId", "quantity"]
+      }
     }
   }
 }
