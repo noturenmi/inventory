@@ -2,12 +2,13 @@
   "openapi": "3.0.4",
   "info": {
     "title": "Inventory Management API",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "API documentation for the Inventory Management System."
   },
   "servers": [
     {
-      "url": "http://localhost:3000"
+      "url": "/",
+      "description": "Vercel Serverless Root"
     }
   ],
   "paths": {
@@ -21,7 +22,7 @@
         }
       },
       "post": {
-        "summary": "Create a product",
+        "summary": "Create a new product",
         "requestBody": {
           "required": true,
           "content": {
@@ -37,10 +38,9 @@
         }
       }
     },
-
     "/products/{id}": {
       "get": {
-        "summary": "Get product by ID",
+        "summary": "Get a product by ID",
         "parameters": [
           {
             "name": "id",
@@ -50,12 +50,12 @@
           }
         ],
         "responses": {
-          "200": { "description": "Product data" },
-          "404": { "description": "Not found" }
+          "200": { "description": "Product found" },
+          "404": { "description": "Product not found" }
         }
       },
       "put": {
-        "summary": "Update product by ID",
+        "summary": "Update a product by ID",
         "parameters": [
           {
             "name": "id",
@@ -74,11 +74,11 @@
         },
         "responses": {
           "200": { "description": "Product updated" },
-          "404": { "description": "Not found" }
+          "404": { "description": "Product not found" }
         }
       },
       "delete": {
-        "summary": "Delete product by ID",
+        "summary": "Delete a product by ID",
         "parameters": [
           {
             "name": "id",
@@ -89,11 +89,10 @@
         ],
         "responses": {
           "200": { "description": "Product deleted" },
-          "404": { "description": "Not found" }
+          "404": { "description": "Product not found" }
         }
       }
     },
-
     "/suppliers": {
       "get": {
         "summary": "Get all suppliers",
@@ -102,10 +101,9 @@
         }
       }
     },
-
     "/orders": {
       "post": {
-        "summary": "Create an order",
+        "summary": "Create a new order",
         "requestBody": {
           "required": true,
           "content": {
@@ -120,7 +118,6 @@
       }
     }
   },
-
   "components": {
     "schemas": {
       "Product": {
@@ -134,7 +131,6 @@
         },
         "required": ["name", "price", "stock"]
       },
-
       "Order": {
         "type": "object",
         "properties": {
