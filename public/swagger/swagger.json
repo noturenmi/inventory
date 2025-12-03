@@ -2,21 +2,29 @@
   "openapi": "3.0.4",
   "info": {
     "title": "Inventory Management API",
-    "version": "1.1.0",
-    "description": "API documentation for the Inventory Management System."
+    "version": "1.0.0",
+    "description": "API documentation for the Inventory Management System",
+    "contact": { "email": "youremail@example.com" }
   },
   "servers": [
-    {
-      "url":  "/swagger/swagger.json",
-      "description": "Vercel Serverless Root"
-    }
+    { "url": "/", "description": "Vercel Serverless Root" }
   ],
   "paths": {
     "/products": {
       "get": {
         "summary": "Get all products",
         "responses": {
-          "200": { "description": "List of products" }
+          "200": {
+            "description": "List of products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Product" }
+                }
+              }
+            }
+          }
         }
       },
       "post": {
@@ -25,33 +33,48 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/Product" }
+              "schema": { "$ref": "#/components/schemas/Product" },
+              "example": {
+                "name": "Laptop",
+                "description": "High-end gaming laptop",
+                "price": 1500,
+                "stock": 10,
+                "supplierId": "64fd123abc456def7890"
+              }
             }
           }
         },
-        "responses": { "201": { "description": "Product created" } }
+        "responses": {
+          "201": { "description": "Product created" }
+        }
       }
     },
     "/products/{id}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+      ],
       "get": {
         "summary": "Get a product by ID",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
         "responses": {
-          "200": { "description": "Product found" },
+          "200": { "description": "Product found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Product" } } } },
           "404": { "description": "Product not found" }
         }
       },
       "put": {
         "summary": "Update a product by ID",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/Product" } }
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Product" },
+              "example": {
+                "name": "Laptop Pro",
+                "description": "Updated description",
+                "price": 1600,
+                "stock": 8,
+                "supplierId": "64fd123abc456def7890"
+              }
+            }
           }
         },
         "responses": {
@@ -61,9 +84,6 @@
       },
       "delete": {
         "summary": "Delete a product by ID",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
         "responses": {
           "200": { "description": "Product deleted" },
           "404": { "description": "Product not found" }
@@ -73,14 +93,33 @@
     "/suppliers": {
       "get": {
         "summary": "Get all suppliers",
-        "responses": { "200": { "description": "List of suppliers" } }
+        "responses": {
+          "200": {
+            "description": "List of suppliers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Supplier" }
+                }
+              }
+            }
+          }
+        }
       },
       "post": {
-        "summary": "Add a new supplier",
+        "summary": "Create a new supplier",
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/Supplier" } }
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Supplier" },
+              "example": {
+                "name": "Tech Supplies Co.",
+                "contact": "+1234567890",
+                "email": "supplier@example.com"
+              }
+            }
           }
         },
         "responses": { "201": { "description": "Supplier created" } }
@@ -89,14 +128,26 @@
     "/orders": {
       "get": {
         "summary": "Get all orders",
-        "responses": { "200": { "description": "List of orders" } }
+        "responses": {
+          "200": {
+            "description": "List of orders",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Order" } }
+              }
+            }
+          }
+        }
       },
       "post": {
         "summary": "Create a new order",
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/Order" } }
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Order" },
+              "example": { "productId": "64fd123abc456def7890", "quantity": 2 }
+            }
           }
         },
         "responses": { "201": { "description": "Order created" } }
