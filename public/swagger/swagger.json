@@ -12,7 +12,7 @@
     }
   ],
   "paths": {
-    "/api/products": {
+    "/products": {
   "post": {
     "summary": "Create a new product",
     "requestBody": {
