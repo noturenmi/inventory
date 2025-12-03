@@ -4,7 +4,7 @@
     "api/*.js": { "runtime": "nodejs18.x" }
   },
   "routes": [
-    { "src": "/swagger", "dest": "/api/swagger.js" },
-    { "src": "/swagger/(.*)", "dest": "/api/swagger.js" }
+    { "src": "/swagger", "dest": "/public/swagger/index.html" },
+    { "src": "/swagger/(.*)", "dest": "/public/swagger/$1" }
   ]
 }

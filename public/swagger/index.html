@@ -11,11 +11,11 @@
   <script>
     window.onload = () => {
       SwaggerUIBundle({
-  url: "/api/swagger.json",  // ← points to serverless function or static JSON
-  dom_id: "#swagger-ui",
-  presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
-  layout: "BaseLayout"
-});
+        url: "/api/swagger",
+        dom_id: "#swagger-ui",
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+        layout: "BaseLayout"
+      });
     };
   </script>
 </body>
