@@ -1,10 +1,50 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/**/*.js", "use": "@vercel/node" }
+    { 
+      "src": "api/**/*.js", 
+      "use": "@vercel/node" 
+    },
+    { 
+      "src": "public/**/*", 
+      "use": "@vercel/static" 
+    }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1.js" },
-    { "src": "/swagger", "dest": "/public/swagger/index.html" }
+    { 
+      "src": "/api/(.*)", 
+      "dest": "/api/$1.js",
+      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"]
+    },
+    { 
+      "src": "/api", 
+      "dest": "/api/index.js",
+      "methods": ["GET", "OPTIONS"]
+    },
+    { 
+      "src": "/swagger",
+      "dest": "/public/swagger/index.html",
+      "headers": {
+        "Content-Type": "text/html"
+      }
+    },
+    { 
+      "src": "/swagger.json",
+      "dest": "/public/swagger/swagger.json",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    { 
+      "src": "/api-docs",
+      "dest": "/public/swagger/index.html",
+      "headers": {
+        "Content-Type": "text/html"
+      }
+    },
+    {
+      "src": "/",
+      "dest": "/api/index.js"
+    }
   ]
 }
