@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "API serverless functions",
   "engines": {
-    "node": "24.x"
+    "node": "22.x"
   },
   "private": true
 }

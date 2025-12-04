@@ -17,7 +17,7 @@
     "swagger-ui-express": "^5.0.1"
   },
   "engines": {
-    "node": "24.x"
+    "node": "22.x"
   },
   "repository": {
     "type": "git",

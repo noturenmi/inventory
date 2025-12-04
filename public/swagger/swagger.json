@@ -1,111 +1,576 @@
 {
   "openapi": "3.0.4",
   "info": {
-    "title": "Inventory Management API",
-    "version": "1.1.0",
-    "description": "API documentation for the Inventory Management System."
+    "title": "Zentiels Inventory Management API",
+    "version": "2.0.0",
+    "description": "Complete REST API for managing products, orders, and suppliers with MongoDB backend.",
+    "contact": {
+      "name": "API Support",
+      "url": "https://github.com/noturenmi/inventory/issues"
+    },
+    "license": {
+      "name": "ISC",
+      "url": "https://opensource.org/licenses/ISC"
+    }
   },
   "servers": [
     {
       "url": "https://zentiels-inventory.vercel.app",
-      "description": "Vercel Serverless Root"
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Products",
+      "description": "Product inventory management"
+    },
+    {
+      "name": "Orders",
+      "description": "Order processing and tracking"
+    },
+    {
+      "name": "Suppliers",
+      "description": "Supplier information management"
     }
   ],
   "paths": {
-    "/products": {
-  "post": {
-    "summary": "Create a new product",
-    "requestBody": {
-      "required": true,
-      "content": {
-        "application/json": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "name": { "type": "string" },
-              "quantity": { "type": "number" },
-              "price": { "type": "number" },
-              "stock": { "type": "number" }
-            },
-            "required": ["name", "quantity", "price", "stock"]
+    "/api": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "API Health Check",
+        "description": "Check if the API is running and get available endpoints",
+        "responses": {
+          "200": {
+            "description": "API is running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "endpoints": {
+                      "type": "object",
+                      "properties": {
+                        "products": { "type": "string" },
+                        "orders": { "type": "string" },
+                        "suppliers": { "type": "string" },
+                        "docs": { "type": "string" }
+                      }
+                    },
+                    "status": { "type": "string" },
+                    "timestamp": { "type": "string", "format": "date-time" }
+                  }
+                },
+                "example": {
+                  "message": "📦 Inventory API running!",
+                  "endpoints": {
+                    "products": "/api/products",
+                    "orders": "/api/orders",
+                    "suppliers": "/api/suppliers",
+                    "docs": "/swagger"
+                  },
+                  "status": "online",
+                  "timestamp": "2024-01-15T10:30:00.000Z"
+                }
+              }
+            }
           }
         }
       }
     },
-    "responses": {
-      "201": { "description": "Product created" },
-      "400": { "description": "Invalid product data" }
-    }
-  }
-},
-    "/products/{id}": {
+    "/api/products": {
       "get": {
-        "summary": "Get a product by ID",
+        "tags": ["Products"],
+        "summary": "Get all products",
+        "description": "Retrieve a list of all products in the inventory",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Product" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      },
+      "post": {
+        "tags": ["Products"],
+        "summary": "Create a new product",
+        "description": "Add a new product to the inventory",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProductInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+    "/api/products/{id}": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get product by ID",
+        "description": "Retrieve a single product by its unique ID",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Product ID (MongoDB ObjectId)",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "example": "507f1f77bcf86cd799439011"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Product found" },
-          "404": { "description": "Product not found" }
+          "200": {
+            "description": "Product found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidId" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/ServerError" }
         }
       },
       "put": {
-        "summary": "Update a product by ID",
+        "tags": ["Products"],
+        "summary": "Update product",
+        "description": "Update an existing product's information",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          }
         ],
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/Product" } }
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProductUpdate" }
+            }
           }
         },
         "responses": {
-          "200": { "description": "Product updated" },
-          "404": { "description": "Product not found" }
+          "200": {
+            "description": "Product updated successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/ServerError" }
         }
       },
       "delete": {
-        "summary": "Delete a product by ID",
+        "tags": ["Products"],
+        "summary": "Delete product",
+        "description": "Remove a product from the inventory",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Product deleted" },
-          "404": { "description": "Product not found" }
+          "200": {
+            "description": "Product deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "deletedProduct": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "name": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidId" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/ServerError" }
         }
       }
     },
-    "/suppliers": {
+    "/api/orders": {
       "get": {
-        "summary": "Get all suppliers",
-        "responses": { "200": { "description": "List of suppliers" } }
+        "tags": ["Orders"],
+        "summary": "Get all orders",
+        "description": "Retrieve a list of all orders",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Order" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
       },
       "post": {
-        "summary": "Add a new supplier",
+        "tags": ["Orders"],
+        "summary": "Create new order",
+        "description": "Place a new order",
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/Supplier" } }
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OrderInput" }
+            }
           }
         },
-        "responses": { "201": { "description": "Supplier created" } }
+        "responses": {
+          "201": {
+            "description": "Order created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Order" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
       }
     },
-    "/orders": {
+    "/api/orders/{id}": {
       "get": {
-        "summary": "Get all orders",
-        "responses": { "200": { "description": "List of orders" } }
+        "tags": ["Orders"],
+        "summary": "Get order by ID",
+        "description": "Retrieve a single order by its unique ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Order" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidId" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
       },
-      "post": {
-        "summary": "Create a new order",
+      "put": {
+        "tags": ["Orders"],
+        "summary": "Update order",
+        "description": "Update an existing order",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/Order" } }
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OrderUpdate" }
+            }
           }
         },
-        "responses": { "201": { "description": "Order created" } }
+        "responses": {
+          "200": {
+            "description": "Order updated successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Order" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      },
+      "delete": {
+        "tags": ["Orders"],
+        "summary": "Delete order",
+        "description": "Remove an order from the system",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "deletedOrder": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "orderNumber": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidId" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+    "/api/suppliers": {
+      "get": {
+        "tags": ["Suppliers"],
+        "summary": "Get all suppliers",
+        "description": "Retrieve a list of all suppliers",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Supplier" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      },
+      "post": {
+        "tags": ["Suppliers"],
+        "summary": "Create new supplier",
+        "description": "Add a new supplier to the system",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SupplierInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Supplier created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Supplier" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+    "/api/suppliers/{id}": {
+      "get": {
+        "tags": ["Suppliers"],
+        "summary": "Get supplier by ID",
+        "description": "Retrieve a single supplier by its unique ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Supplier found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Supplier" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidId" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      },
+      "put": {
+        "tags": ["Suppliers"],
+        "summary": "Update supplier",
+        "description": "Update an existing supplier's information",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SupplierUpdate" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Supplier updated successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Supplier" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      },
+      "delete": {
+        "tags": ["Suppliers"],
+        "summary": "Delete supplier",
+        "description": "Remove a supplier from the system",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Supplier deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "deletedSupplier": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "name": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidId" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+    "/api/swagger": {
+      "get": {
+        "tags": ["Documentation"],
+        "summary": "Swagger documentation info",
+        "description": "Get information about Swagger documentation",
+        "responses": {
+          "200": {
+            "description": "Documentation information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "ui": { "type": "string" },
+                    "json": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -113,33 +578,473 @@
     "schemas": {
       "Product": {
         "type": "object",
+        "required": ["name", "quantity", "price"],
         "properties": {
-          "name": { "type": "string" },
-          "description": { "type": "string" },
-          "price": { "type": "number" },
-          "stock": { "type": "integer" },
-          "supplierId": { "type": "string" }
-        },
-        "required": ["name", "price", "stock"]
+          "_id": {
+            "type": "string",
+            "description": "Auto-generated MongoDB ID",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "name": {
+            "type": "string",
+            "description": "Product name",
+            "example": "Wireless Mouse"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Available stock quantity",
+            "example": 50
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Unit price",
+            "example": 29.99
+          },
+          "description": {
+            "type": "string",
+            "description": "Product description",
+            "example": "Ergonomic wireless mouse with Bluetooth 5.0"
+          },
+          "category": {
+            "type": "string",
+            "description": "Product category",
+            "example": "Electronics"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp",
+            "example": "2024-01-15T10:30:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp",
+            "example": "2024-01-15T10:30:00.000Z"
+          }
+        }
       },
-      "Supplier": {
+      "ProductInput": {
+        "type": "object",
+        "required": ["name", "quantity", "price"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Wireless Mouse",
+            "minLength": 2,
+            "maxLength": 100
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 50,
+            "description": "Initial stock quantity"
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "example": 29.99,
+            "description": "Price per unit"
+          },
+          "description": {
+            "type": "string",
+            "example": "Ergonomic wireless mouse",
+            "maxLength": 500
+          },
+          "category": {
+            "type": "string",
+            "example": "Electronics",
+            "maxLength": 50
+          }
+        }
+      },
+      "ProductUpdate": {
         "type": "object",
         "properties": {
-          "name": { "type": "string" },
-          "contact": { "type": "string" },
-          "email": { "type": "string" }
-        },
-        "required": ["name"]
+          "name": {
+            "type": "string",
+            "example": "Updated Product Name",
+            "minLength": 2,
+            "maxLength": 100
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 100
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "example": 39.99
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "category": {
+            "type": "string",
+            "maxLength": 50
+          }
+        }
       },
       "Order": {
         "type": "object",
+        "required": ["orderNumber", "products", "totalAmount", "customerName"],
         "properties": {
-          "productId": { "type": "string" },
-          "quantity": { "type": "integer" },
-          "orderDate": { "type": "string", "format": "date-time" }
-        },
-        "required": ["productId", "quantity"]
+          "_id": {
+            "type": "string",
+            "description": "Auto-generated MongoDB ID",
+            "example": "507f1f77bcf86cd799439012"
+          },
+          "orderNumber": {
+            "type": "string",
+            "description": "Unique order number",
+            "example": "ORD-123456"
+          },
+          "products": {
+            "type": "array",
+            "description": "List of products in the order",
+            "items": {
+              "type": "object",
+              "required": ["productId", "quantity", "price"],
+              "properties": {
+                "productId": {
+                  "type": "string",
+                  "description": "Product ID",
+                  "example": "507f1f77bcf86cd799439011"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Quantity ordered",
+                  "example": 2
+                },
+                "price": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Price at time of order",
+                  "example": 29.99
+                }
+              }
+            }
+          },
+          "totalAmount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Total order amount",
+            "example": 59.98
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "processing", "completed", "cancelled"],
+            "default": "pending",
+            "description": "Order status",
+            "example": "pending"
+          },
+          "customerName": {
+            "type": "string",
+            "description": "Customer name",
+            "example": "John Doe"
+          },
+          "customerEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "Customer email",
+            "example": "john@example.com"
+          },
+          "shippingAddress": {
+            "type": "string",
+            "description": "Shipping address",
+            "example": "123 Main St, City, Country"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Order notes",
+            "example": "Please deliver before 5 PM"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Order creation timestamp",
+            "example": "2024-01-15T10:30:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp",
+            "example": "2024-01-15T10:30:00.000Z"
+          }
+        }
+      },
+      "OrderInput": {
+        "type": "object",
+        "required": ["products", "customerName"],
+        "properties": {
+          "products": {
+            "type": "array",
+            "description": "List of products to order",
+            "items": {
+              "type": "object",
+              "required": ["productId", "quantity"],
+              "properties": {
+                "productId": {
+                  "type": "string",
+                  "example": "507f1f77bcf86cd799439011"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 2
+                }
+              }
+            }
+          },
+          "customerName": {
+            "type": "string",
+            "example": "John Doe",
+            "minLength": 2,
+            "maxLength": 100
+          },
+          "customerEmail": {
+            "type": "string",
+            "format": "email",
+            "example": "john@example.com"
+          },
+          "shippingAddress": {
+            "type": "string",
+            "example": "123 Main St, City, Country",
+            "maxLength": 500
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        }
+      },
+      "OrderUpdate": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["pending", "processing", "completed", "cancelled"],
+            "example": "processing"
+          },
+          "customerName": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100
+          },
+          "customerEmail": {
+            "type": "string",
+            "format": "email"
+          },
+          "shippingAddress": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        }
+      },
+      "Supplier": {
+        "type": "object",
+        "required": ["name", "contactPerson", "email", "phone", "address"],
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Auto-generated MongoDB ID",
+            "example": "507f1f77bcf86cd799439013"
+          },
+          "name": {
+            "type": "string",
+            "description": "Supplier company name",
+            "example": "Tech Supplies Inc."
+          },
+          "contactPerson": {
+            "type": "string",
+            "description": "Contact person name",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Business email address",
+            "example": "john@techsupplies.com"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Business phone number",
+            "example": "+1234567890"
+          },
+          "address": {
+            "type": "string",
+            "description": "Business address",
+            "example": "123 Main St, City, Country"
+          },
+          "productsSupplied": {
+            "type": "array",
+            "description": "Types of products supplied",
+            "items": { "type": "string" },
+            "example": ["Electronics", "Computer Parts"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive"],
+            "default": "active",
+            "description": "Supplier status",
+            "example": "active"
+          },
+          "website": {
+            "type": "string",
+            "format": "uri",
+            "description": "Company website",
+            "example": "https://techsupplies.com"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Additional notes",
+            "example": "Preferred supplier for electronics"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp",
+            "example": "2024-01-15T10:30:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp",
+            "example": "2024-01-15T10:30:00.000Z"
+          }
+        }
+      },
+      "SupplierInput": {
+        "type": "object",
+        "required": ["name", "contactPerson", "email", "phone", "address"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Tech Supplies Inc.",
+            "minLength": 2,
+            "maxLength": 100
+          },
+          "contactPerson": {
+            "type": "string",
+            "example": "John Doe",
+            "minLength": 2,
+            "maxLength": 100
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john@techsupplies.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+1234567890",
+            "minLength": 5,
+            "maxLength": 20
+          },
+          "address": {
+            "type": "string",
+            "example": "123 Main St, City, Country",
+            "maxLength": 500
+          },
+          "productsSupplied": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["Electronics", "Computer Parts"]
+          },
+          "website": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://techsupplies.com"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        }
+      },
+      "SupplierUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100
+          },
+          "contactPerson": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 20
+          },
+          "address": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "productsSupplied": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive"]
+          },
+          "website": {
+            "type": "string",
+            "format": "uri"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        }
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "The requested resource was not found"
+      },
+      "ValidationError": {
+        "description": "Invalid input data provided"
+      },
+      "InvalidId": {
+        "description": "Invalid ID format. Must be a 24-character hex string"
+      },
+      "ServerError": {
+        "description": "Internal server error"
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "externalDocs": {
+    "description": "GitHub Repository",
+    "url": "https://github.com/noturenmi/inventory"
   }
 }
