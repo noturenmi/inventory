@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "vercel dev",
     "start": "vercel dev",
-    "deploy": "vercel --prod",
-    "test": "echo 'Run: vercel dev to test locally'"
+    "deploy": "vercel --prod"
   },
   "dependencies": {
     "cors": "^2.8.5",

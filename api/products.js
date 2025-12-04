@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
-const { json } = require('express');
 require('dotenv').config();
 
 let conn = null;
 
 const connectToDB = async () => {
   if (conn) return conn;
+  if (!process.env.MONGO_URI) throw new Error('MONGO_URI missing');
   conn = await mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -13,47 +13,53 @@ const connectToDB = async () => {
   return conn;
 };
 
+const productSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  quantity: { type: Number, required: true, min: 0 },
+  price: { type: Number, required: true, min: 0 },
+  description: { type: String },
+  category: { type: String },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
+
 const handler = async (req, res) => {
-  await connectToDB();
-
-  const productSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    quantity: { type: Number, required: true },
-    price: { type: Number, required: true }
-  });
-
-  const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
-
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  
   try {
+    await connectToDB();
+    
     switch (req.method) {
       case 'GET':
-        if (req.query.id) {
-          const product = await Product.findById(req.query.id);
-          if (!product) return res.status(404).json({ message: "Not found" });
-          return res.json(product);
-        } else {
-          const products = await Product.find();
-          return res.json(products);
-        }
+        const products = await Product.find().sort({ createdAt: -1 });
+        return res.status(200).json(products);
+        
       case 'POST':
-        const newProduct = new Product(req.body);
-        await newProduct.save();
-        return res.status(201).json(newProduct);
-      case 'PUT':
-        const updated = await Product.findByIdAndUpdate(req.query.id, req.body, { new: true, runValidators: true });
-        if (!updated) return res.status(404).json({ message: "Not found" });
-        return res.json(updated);
-      case 'DELETE':
-        const deleted = await Product.findByIdAndDelete(req.query.id);
-        if (!deleted) return res.status(404).json({ message: "Not found" });
-        return res.json({ message: "Deleted successfully" });
+        const newProduct = new Product({
+          ...req.body,
+          updatedAt: new Date()
+        });
+        const savedProduct = await newProduct.save();
+        return res.status(201).json(savedProduct);
+        
       default:
-        res.setHeader('Allow', ['GET','POST','PUT','DELETE']);
-        return res.status(405).end(`Method ${req.method} Not Allowed`);
+        res.setHeader('Allow', ['GET', 'POST', 'OPTIONS']);
+        return res.status(405).json({ 
+          error: `Method ${req.method} Not Allowed`,
+          allowed: ['GET', 'POST', 'OPTIONS']
+        });
     }
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Internal Server Error' });
+    console.error('Products API Error:', err);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
