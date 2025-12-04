@@ -1,9 +1,12 @@
 {
-   "name": "inventory-api",
+  "name": "inventory-api",
   "version": "1.0.0",
   "description": "Inventory API with Swagger docs",
   "scripts": {
-    "start": "node server.js"
+    "dev": "vercel dev",
+    "start": "vercel dev",
+    "deploy": "vercel --prod",
+    "test": "echo 'Run: vercel dev to test locally'"
   },
   "dependencies": {
     "cors": "^2.8.5",
