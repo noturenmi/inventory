@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vercel dev",
     "start": "vercel dev",
-    "deploy": "vercel --prod"
+    "deploy": "vercel --prod",
+    "build": "vercel build"
   },
   "dependencies": {
     "cors": "^2.8.5",
