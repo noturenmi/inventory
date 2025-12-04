@@ -6,10 +6,9 @@ let conn = null;
 const connectToDB = async () => {
   if (conn) return conn;
   if (!process.env.MONGO_URI) throw new Error('MONGO_URI missing');
-  conn = await mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  });
+  conn = await mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB Atlas connected successfully'))
+  .catch(err => console.error('❌ MongoDB Atlas error:', err.message));
   return conn;
 };
 
