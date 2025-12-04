@@ -1,25 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Inventory API Docs</title>
-  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📦 Inventory Management API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        
+        .status {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        
+        .endpoints {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .endpoints h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .endpoint-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .endpoint-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .endpoint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .method {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .path {
+            font-family: 'Courier New', monospace;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .desc {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #e9ecef;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #dee2e6;
+            transform: translateY(-2px);
+        }
+        
+        .timestamp {
+            text-align: center;
+            color: #999;
+            font-size: 0.9rem;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .endpoint-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div id="swagger-ui"></div>
-  <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
-  <script>
-    window.onload = () => {
-      SwaggerUIBundle({
-        url: "/api/swagger",
-        dom_id: "#swagger-ui",
-        presets: [
-          SwaggerUIBundle.presets.apis,
-          SwaggerUIBundle.SwaggerUIStandalonePreset
-        ],
-        layout: "BaseLayout"
-      });
-    };
-  </script>
+    <div class="container">
+        <header>
+            <div class="logo">📦</div>
+            <h1>Inventory Management API</h1>
+            <p class="subtitle">A fully-featured REST API for managing products, orders, and suppliers</p>
+            <div class="status">● Online & Ready</div>
+        </header>
+        
+        <section class="endpoints">
+            <h2>📡 API Endpoints</h2>
+            <div class="endpoint-grid">
+                <div class="endpoint-card">
+                    <div class="method">GET / POST</div>
+                    <div class="path">/api/products</div>
+                    <div class="desc">Manage product inventory</div>
+                </div>
+                <div class="endpoint-card">
+                    <div class="method">GET / POST</div>
+                    <div class="path">/api/orders</div>
+                    <div class="desc">Process customer orders</div>
+                </div>
+                <div class="endpoint-card">
+                    <div class="method">GET / POST</div>
+                    <div class="path">/api/suppliers</div>
+                    <div class="desc">Track suppliers</div>
+                </div>
+                <div class="endpoint-card">
+                    <div class="method">GET</div>
+                    <div class="path">/swagger</div>
+                    <div class="desc">Interactive API documentation</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="buttons">
+            <a href="/swagger" class="btn btn-primary">📚 View API Documentation</a>
+            <a href="/api/products" class="btn btn-secondary">🔍 Test Products API</a>
+            <a href="https://github.com/noturenmi/inventory" class="btn btn-secondary" target="_blank">🐙 View on GitHub</a>
+        </section>
+        
+        <footer>
+            <p class="timestamp">API is running smoothly • Last checked: <span id="timestamp"></span></p>
+        </footer>
+    </div>
+
+    <script>
+        // Set current timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Auto-refresh status every 30 seconds
+        setInterval(() => {
+            fetch('/api')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'online') {
+                        document.querySelector('.status').textContent = '● Online & Ready';
+                        document.querySelector('.status').style.background = '#4CAF50';
+                    } else {
+                        document.querySelector('.status').textContent = '● Offline';
+                        document.querySelector('.status').style.background = '#f44336';
+                    }
+                })
+                .catch(() => {
+                    document.querySelector('.status').textContent = '● Connection Error';
+                    document.querySelector('.status').style.background = '#ff9800';
+                });
+        }, 30000);
+    </script>
 </body>
 </html>
