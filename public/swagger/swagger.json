@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "/",
+      "url": "https://zentiels-inventory.vercel.app",
       "description": "Vercel Serverless Root"
     }
   ],
