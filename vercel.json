@@ -5,11 +5,25 @@
     { "src": "public/**/*", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1.js" },
-    { "src": "/api", "dest": "/api/index.js" },
-    { "src": "/swagger", "dest": "/public/swagger/index.html" },
-    { "src": "/swagger.json", "dest": "/public/swagger/swagger.json" },
-    { "src": "/api-docs", "dest": "/public/swagger/index.html" },
-    { "src": "/", "dest": "/api/index.js" }
+    { 
+      "src": "/",
+      "dest": "/public/index.html"
+    },
+    { 
+      "src": "/api/(.*)", 
+      "dest": "/api/$1.js"
+    },
+    { 
+      "src": "/api", 
+      "dest": "/api/index.js"
+    },
+    { 
+      "src": "/swagger",
+      "dest": "/public/swagger/index.html"
+    },
+    { 
+      "src": "/swagger.json",
+      "dest": "/public/swagger/swagger.json"
+    }
   ]
 }
