@@ -38,7 +38,7 @@
     }
   ],
   "paths": {
-    "/api": {
+    "/": {
       "get": {
         "tags": ["Health"],
         "summary": "API Health Check",
@@ -52,28 +52,13 @@
                   "type": "object",
                   "properties": {
                     "message": { "type": "string" },
-                    "endpoints": {
-                      "type": "object",
-                      "properties": {
-                        "products": { "type": "string" },
-                        "orders": { "type": "string" },
-                        "suppliers": { "type": "string" },
-                        "docs": { "type": "string" }
-                      }
-                    },
-                    "status": { "type": "string" },
+                    "endpoints": { "type": "array", "items": { "type": "string" } },
                     "timestamp": { "type": "string", "format": "date-time" }
                   }
                 },
                 "example": {
-                  "message": "📦 Inventory API running!",
-                  "endpoints": {
-                    "products": "/api/products",
-                    "orders": "/api/orders",
-                    "suppliers": "/api/suppliers",
-                    "docs": "/swagger"
-                  },
-                  "status": "online",
+                  "message": "✅ API is WORKING!",
+                  "endpoints": ["/api/products", "/api/orders", "/api/suppliers", "/api-docs"],
                   "timestamp": "2024-01-15T10:30:00.000Z"
                 }
               }
@@ -93,8 +78,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/Product" }
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "count": { "type": "integer" },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Product" }
+                    }
+                  }
                 }
               }
             }
@@ -119,7 +111,14 @@
             "description": "Product created successfully",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Product" }
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/Product" }
+                  }
+                }
               }
             }
           },
@@ -132,17 +131,16 @@
       "get": {
         "tags": ["Products"],
         "summary": "Get product by ID",
-        "description": "Retrieve a single product by its unique ID",
+        "description": "Retrieve a single product by its ID",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "Product ID (MongoDB ObjectId)",
+            "description": "Product ID",
             "schema": {
               "type": "string",
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "example": "507f1f77bcf86cd799439011"
+              "example": "prod_1"
             }
           }
         ],
@@ -151,11 +149,16 @@
             "description": "Product found",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Product" }
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Product" }
+                  }
+                }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/InvalidId" },
           "404": { "$ref": "#/components/responses/NotFound" },
           "500": { "$ref": "#/components/responses/ServerError" }
         }
@@ -169,10 +172,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9a-fA-F]{24}$"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "requestBody": {
@@ -188,7 +188,14 @@
             "description": "Product updated successfully",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Product" }
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/Product" }
+                  }
+                }
               }
             }
           },
@@ -206,10 +213,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9a-fA-F]{24}$"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -220,20 +224,13 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" },
-                    "deletedProduct": {
-                      "type": "object",
-                      "properties": {
-                        "id": { "type": "string" },
-                        "name": { "type": "string" }
-                      }
-                    }
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" }
                   }
                 }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/InvalidId" },
           "404": { "$ref": "#/components/responses/NotFound" },
           "500": { "$ref": "#/components/responses/ServerError" }
         }
@@ -250,8 +247,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/Order" }
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "count": { "type": "integer" },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Order" }
+                    }
+                  }
                 }
               }
             }
@@ -262,7 +266,7 @@
       "post": {
         "tags": ["Orders"],
         "summary": "Create new order",
-        "description": "Place a new order",
+        "description": "Create a new order",
         "requestBody": {
           "required": true,
           "content": {
@@ -276,7 +280,14 @@
             "description": "Order created successfully",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Order" }
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/Order" }
+                  }
+                }
               }
             }
           },
@@ -289,16 +300,13 @@
       "get": {
         "tags": ["Orders"],
         "summary": "Get order by ID",
-        "description": "Retrieve a single order by its unique ID",
+        "description": "Retrieve a single order by its ID",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9a-fA-F]{24}$"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -306,11 +314,16 @@
             "description": "Order found",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Order" }
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Order" }
+                  }
+                }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/InvalidId" },
           "404": { "$ref": "#/components/responses/NotFound" },
           "500": { "$ref": "#/components/responses/ServerError" }
         }
@@ -318,20 +331,16 @@
       "put": {
         "tags": ["Orders"],
         "summary": "Update order",
-        "description": "Update an existing order",
+        "description": "Update an existing order's information",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9a-fA-F]{24}$"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": { "$ref": "#/components/schemas/OrderUpdate" }
@@ -343,7 +352,14 @@
             "description": "Order updated successfully",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Order" }
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/Order" }
+                  }
+                }
               }
             }
           },
@@ -361,10 +377,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9a-fA-F]{24}$"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -375,20 +388,13 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" },
-                    "deletedOrder": {
-                      "type": "object",
-                      "properties": {
-                        "id": { "type": "string" },
-                        "orderNumber": { "type": "string" }
-                      }
-                    }
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" }
                   }
                 }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/InvalidId" },
           "404": { "$ref": "#/components/responses/NotFound" },
           "500": { "$ref": "#/components/responses/ServerError" }
         }
@@ -405,8 +411,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/Supplier" }
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "count": { "type": "integer" },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Supplier" }
+                    }
+                  }
                 }
               }
             }
@@ -431,7 +444,14 @@
             "description": "Supplier created successfully",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Supplier" }
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/Supplier" }
+                  }
+                }
               }
             }
           },
@@ -444,16 +464,13 @@
       "get": {
         "tags": ["Suppliers"],
         "summary": "Get supplier by ID",
-        "description": "Retrieve a single supplier by its unique ID",
+        "description": "Retrieve a single supplier by its ID",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9a-fA-F]{24}$"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -461,11 +478,16 @@
             "description": "Supplier found",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Supplier" }
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Supplier" }
+                  }
+                }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/InvalidId" },
           "404": { "$ref": "#/components/responses/NotFound" },
           "500": { "$ref": "#/components/responses/ServerError" }
         }
@@ -479,10 +501,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9a-fA-F]{24}$"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "requestBody": {
@@ -498,7 +517,14 @@
             "description": "Supplier updated successfully",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Supplier" }
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/Supplier" }
+                  }
+                }
               }
             }
           },
@@ -516,10 +542,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9a-fA-F]{24}$"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -530,45 +553,26 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" },
-                    "deletedSupplier": {
-                      "type": "object",
-                      "properties": {
-                        "id": { "type": "string" },
-                        "name": { "type": "string" }
-                      }
-                    }
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" }
                   }
                 }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/InvalidId" },
           "404": { "$ref": "#/components/responses/NotFound" },
           "500": { "$ref": "#/components/responses/ServerError" }
         }
       }
     },
-    "/api/swagger": {
+    "/api-docs": {
       "get": {
         "tags": ["Documentation"],
-        "summary": "Swagger documentation info",
-        "description": "Get information about Swagger documentation",
+        "summary": "Swagger UI Documentation",
+        "description": "Interactive API documentation",
         "responses": {
           "200": {
-            "description": "Documentation information",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" },
-                    "ui": { "type": "string" },
-                    "json": { "type": "string" }
-                  }
-                }
-              }
-            }
+            "description": "Swagger UI loaded"
           }
         }
       }
@@ -578,85 +582,59 @@
     "schemas": {
       "Product": {
         "type": "object",
-        "required": ["name", "quantity", "price"],
         "properties": {
           "_id": {
             "type": "string",
-            "description": "Auto-generated MongoDB ID",
-            "example": "507f1f77bcf86cd799439011"
+            "example": "auto_gen_1_1700000000000"
           },
           "name": {
             "type": "string",
-            "description": "Product name",
             "example": "Wireless Mouse"
           },
           "quantity": {
             "type": "integer",
-            "minimum": 0,
-            "description": "Available stock quantity",
             "example": 50
           },
           "price": {
             "type": "number",
-            "minimum": 0,
-            "description": "Unit price",
             "example": 29.99
+          },
+          "stock": {
+            "type": "integer",
+            "example": 50
           },
           "description": {
             "type": "string",
-            "description": "Product description",
-            "example": "Ergonomic wireless mouse with Bluetooth 5.0"
+            "example": "Dynamic product description"
           },
           "category": {
             "type": "string",
-            "description": "Product category",
             "example": "Electronics"
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time",
-            "description": "Creation timestamp",
-            "example": "2024-01-15T10:30:00.000Z"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Last update timestamp",
-            "example": "2024-01-15T10:30:00.000Z"
+            "format": "date-time"
           }
         }
       },
       "ProductInput": {
         "type": "object",
-        "required": ["name", "quantity", "price"],
         "properties": {
           "name": {
             "type": "string",
-            "example": "Wireless Mouse",
-            "minLength": 2,
-            "maxLength": 100
+            "example": "Wireless Mouse"
           },
           "quantity": {
             "type": "integer",
-            "minimum": 0,
-            "example": 50,
-            "description": "Initial stock quantity"
+            "example": 50
           },
           "price": {
             "type": "number",
-            "minimum": 0,
-            "example": 29.99,
-            "description": "Price per unit"
+            "example": 29.99
           },
-          "description": {
-            "type": "string",
-            "example": "Ergonomic wireless mouse",
-            "maxLength": 500
-          },
-          "category": {
-            "type": "string",
-            "example": "Electronics",
-            "maxLength": 50
+          "stock": {
+            "type": "integer",
+            "example": 50
           }
         }
       },
@@ -665,161 +643,96 @@
         "properties": {
           "name": {
             "type": "string",
-            "example": "Updated Product Name",
-            "minLength": 2,
-            "maxLength": 100
+            "example": "Updated Product Name"
           },
           "quantity": {
             "type": "integer",
-            "minimum": 0,
             "example": 100
           },
           "price": {
             "type": "number",
-            "minimum": 0,
             "example": 39.99
           },
-          "description": {
-            "type": "string",
-            "maxLength": 500
-          },
-          "category": {
-            "type": "string",
-            "maxLength": 50
+          "stock": {
+            "type": "integer",
+            "example": 100
           }
         }
       },
       "Order": {
         "type": "object",
-        "required": ["orderNumber", "products", "totalAmount", "customerName"],
         "properties": {
           "_id": {
             "type": "string",
-            "description": "Auto-generated MongoDB ID",
-            "example": "507f1f77bcf86cd799439012"
+            "example": "order_1700000000000"
           },
-          "orderNumber": {
+          "orderId": {
             "type": "string",
-            "description": "Unique order number",
-            "example": "ORD-123456"
+            "example": "ORD123456"
           },
-          "products": {
-            "type": "array",
-            "description": "List of products in the order",
-            "items": {
-              "type": "object",
-              "required": ["productId", "quantity", "price"],
-              "properties": {
-                "productId": {
-                  "type": "string",
-                  "description": "Product ID",
-                  "example": "507f1f77bcf86cd799439011"
-                },
-                "quantity": {
-                  "type": "integer",
-                  "minimum": 1,
-                  "description": "Quantity ordered",
-                  "example": 2
-                },
-                "price": {
-                  "type": "number",
-                  "minimum": 0,
-                  "description": "Price at time of order",
-                  "example": 29.99
-                }
-              }
-            }
+          "productId": {
+            "type": "string",
+            "example": "prod_1"
           },
-          "totalAmount": {
+          "productName": {
+            "type": "string",
+            "example": "Wireless Mouse"
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 2
+          },
+          "unitPrice": {
             "type": "number",
-            "minimum": 0,
-            "description": "Total order amount",
-            "example": 59.98
+            "example": 29.99
           },
-          "status": {
+          "totalPrice": {
             "type": "string",
-            "enum": ["pending", "processing", "completed", "cancelled"],
-            "default": "pending",
-            "description": "Order status",
-            "example": "pending"
+            "example": "59.98"
           },
           "customerName": {
             "type": "string",
-            "description": "Customer name",
             "example": "John Doe"
           },
           "customerEmail": {
             "type": "string",
-            "format": "email",
-            "description": "Customer email",
             "example": "john@example.com"
           },
-          "shippingAddress": {
+          "status": {
             "type": "string",
-            "description": "Shipping address",
-            "example": "123 Main St, City, Country"
-          },
-          "notes": {
-            "type": "string",
-            "description": "Order notes",
-            "example": "Please deliver before 5 PM"
+            "example": "pending",
+            "enum": ["pending", "processing", "completed", "cancelled"]
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time",
-            "description": "Order creation timestamp",
-            "example": "2024-01-15T10:30:00.000Z"
+            "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
-            "format": "date-time",
-            "description": "Last update timestamp",
-            "example": "2024-01-15T10:30:00.000Z"
+            "format": "date-time"
           }
         }
       },
       "OrderInput": {
         "type": "object",
-        "required": ["products", "customerName"],
+        "required": ["productId", "quantity"],
         "properties": {
-          "products": {
-            "type": "array",
-            "description": "List of products to order",
-            "items": {
-              "type": "object",
-              "required": ["productId", "quantity"],
-              "properties": {
-                "productId": {
-                  "type": "string",
-                  "example": "507f1f77bcf86cd799439011"
-                },
-                "quantity": {
-                  "type": "integer",
-                  "minimum": 1,
-                  "example": 2
-                }
-              }
-            }
+          "productId": {
+            "type": "string",
+            "example": "prod_1"
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 2,
+            "minimum": 1
           },
           "customerName": {
             "type": "string",
-            "example": "John Doe",
-            "minLength": 2,
-            "maxLength": 100
+            "example": "John Doe"
           },
           "customerEmail": {
             "type": "string",
-            "format": "email",
             "example": "john@example.com"
-          },
-          "shippingAddress": {
-            "type": "string",
-            "example": "123 Main St, City, Country",
-            "maxLength": 500
-          },
-          "notes": {
-            "type": "string",
-            "maxLength": 1000
           }
         }
       },
@@ -831,143 +744,67 @@
             "enum": ["pending", "processing", "completed", "cancelled"],
             "example": "processing"
           },
-          "customerName": {
-            "type": "string",
-            "minLength": 2,
-            "maxLength": 100
-          },
-          "customerEmail": {
-            "type": "string",
-            "format": "email"
-          },
-          "shippingAddress": {
-            "type": "string",
-            "maxLength": 500
-          },
-          "notes": {
-            "type": "string",
-            "maxLength": 1000
+          "quantity": {
+            "type": "integer",
+            "example": 3
           }
         }
       },
       "Supplier": {
         "type": "object",
-        "required": ["name", "contactPerson", "email", "phone", "address"],
         "properties": {
           "_id": {
             "type": "string",
-            "description": "Auto-generated MongoDB ID",
-            "example": "507f1f77bcf86cd799439013"
+            "example": "supplier_1"
           },
           "name": {
             "type": "string",
-            "description": "Supplier company name",
             "example": "Tech Supplies Inc."
           },
           "contactPerson": {
             "type": "string",
-            "description": "Contact person name",
             "example": "John Doe"
           },
           "email": {
             "type": "string",
-            "format": "email",
-            "description": "Business email address",
             "example": "john@techsupplies.com"
           },
           "phone": {
             "type": "string",
-            "description": "Business phone number",
             "example": "+1234567890"
           },
           "address": {
             "type": "string",
-            "description": "Business address",
             "example": "123 Main St, City, Country"
-          },
-          "productsSupplied": {
-            "type": "array",
-            "description": "Types of products supplied",
-            "items": { "type": "string" },
-            "example": ["Electronics", "Computer Parts"]
-          },
-          "status": {
-            "type": "string",
-            "enum": ["active", "inactive"],
-            "default": "active",
-            "description": "Supplier status",
-            "example": "active"
-          },
-          "website": {
-            "type": "string",
-            "format": "uri",
-            "description": "Company website",
-            "example": "https://techsupplies.com"
-          },
-          "notes": {
-            "type": "string",
-            "description": "Additional notes",
-            "example": "Preferred supplier for electronics"
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time",
-            "description": "Creation timestamp",
-            "example": "2024-01-15T10:30:00.000Z"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Last update timestamp",
-            "example": "2024-01-15T10:30:00.000Z"
+            "format": "date-time"
           }
         }
       },
       "SupplierInput": {
         "type": "object",
-        "required": ["name", "contactPerson", "email", "phone", "address"],
         "properties": {
           "name": {
             "type": "string",
-            "example": "Tech Supplies Inc.",
-            "minLength": 2,
-            "maxLength": 100
+            "example": "Tech Supplies Inc."
           },
           "contactPerson": {
             "type": "string",
-            "example": "John Doe",
-            "minLength": 2,
-            "maxLength": 100
+            "example": "John Doe"
           },
           "email": {
             "type": "string",
-            "format": "email",
             "example": "john@techsupplies.com"
           },
           "phone": {
             "type": "string",
-            "example": "+1234567890",
-            "minLength": 5,
-            "maxLength": 20
+            "example": "+1234567890"
           },
           "address": {
             "type": "string",
-            "example": "123 Main St, City, Country",
-            "maxLength": 500
-          },
-          "productsSupplied": {
-            "type": "array",
-            "items": { "type": "string" },
-            "example": ["Electronics", "Computer Parts"]
-          },
-          "website": {
-            "type": "string",
-            "format": "uri",
-            "example": "https://techsupplies.com"
-          },
-          "notes": {
-            "type": "string",
-            "maxLength": 1000
+            "example": "123 Main St, City, Country"
           }
         }
       },
@@ -975,43 +812,19 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "minLength": 2,
-            "maxLength": 100
+            "type": "string"
           },
           "contactPerson": {
-            "type": "string",
-            "minLength": 2,
-            "maxLength": 100
+            "type": "string"
           },
           "email": {
-            "type": "string",
-            "format": "email"
+            "type": "string"
           },
           "phone": {
-            "type": "string",
-            "minLength": 5,
-            "maxLength": 20
+            "type": "string"
           },
           "address": {
-            "type": "string",
-            "maxLength": 500
-          },
-          "productsSupplied": {
-            "type": "array",
-            "items": { "type": "string" }
-          },
-          "status": {
-            "type": "string",
-            "enum": ["active", "inactive"]
-          },
-          "website": {
-            "type": "string",
-            "format": "uri"
-          },
-          "notes": {
-            "type": "string",
-            "maxLength": 1000
+            "type": "string"
           }
         }
       }
@@ -1023,26 +836,11 @@
       "ValidationError": {
         "description": "Invalid input data provided"
       },
-      "InvalidId": {
-        "description": "Invalid ID format. Must be a 24-character hex string"
-      },
       "ServerError": {
         "description": "Internal server error"
       }
-    },
-    "securitySchemes": {
-      "BearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      }
     }
   },
-  "security": [
-    {
-      "BearerAuth": []
-    }
-  ],
   "externalDocs": {
     "description": "GitHub Repository",
     "url": "https://github.com/noturenmi/inventory"
