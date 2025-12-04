@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.4",
+  "openapi": "3.0.0",
   "info": {
     "title": "Zentiels Inventory Management API",
     "version": "2.0.0",
