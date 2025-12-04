@@ -1,70 +1,76 @@
-# Inventory API  
-A Node.js + Express + MongoDB Atlas REST API for managing items, suppliers, categories, and inventory reports — deployed on Vercel with full Swagger documentation.
+# Inventory Management API  
+A RESTful API for managing inventory, products, and orders built with Node.js, Express, and MongoDB Atlas, deployed on Vercel.
 
 ---
 
-## Live Endpoints
-
-| Feature | URL |
-|--------|-----|
-| **API Root** | https://zentiels-inventory.vercel.app/ |
-| **Swagger Docs** | https://zentiels-inventory.vercel.app/api-docs |
-| **API Base URL** | https://zentiels-inventory.vercel.app/api/v1 |
+## Live Demo
+- **API URL**: https://zentiels-inventory.vercel.app
+- **Documentation**: https://zentiels-inventory.vercel.app/api-docs
+- **GitHub**: https://github.com/noturenmi/inventory
 
 ---
 
 ## Features
+-  Complete CRUD operations for Products
+-  Order management system
+-  MongoDB Atlas integration
+-  Swagger/OpenAPI documentation
+-  CORS enabled for cross-origin requests
+-  Deployed on Vercel (serverless)
+-  Environment-based configuration
+ 
+## API Endpoints
 
-### Items  
-- Create new items  
-- List all items  
-- Get item by ID  
-- Update item  
-- Delete item  
-- Auto-populates supplier reference  
-
-### Suppliers  
-- Add supplier  
-- List suppliers  
-
-### Categories  
-- Get distinct categories  
-
-### Reports  
-- Inventory summary  
-- Total stock  
-- Total value  
-- Category breakdown  
-- Low stock list  
+GET /
+Check if API is running.
 
 ---
 
-## Tech Stack
+### Products
+GET /api/products - Get all products
 
-| Layer | Technology |
-|-------|------------|
-| Backend | Node.js + Express |
-| Database | MongoDB Atlas |
-| Docs | Swagger UI (OpenAPI 3) |
-| Deployment | Vercel |
-| ORM | Mongoose |
+GET /api/products/{id} - Get product by ID
 
----
+POST /api/products - Create new product
 
-## Project Structure
+PUT /api/products/{id} - Update product
 
-project/
-│ server.js
-│ package.json
-│ swagger.json
-│ .env
-
+DELETE /api/products/{id} - Delete product
 
 ---
 
-## Installation & Setup
+### Orders
 
-### 1. Clone repository
+GET /api/orders - Get all orders
+
+GET /api/orders/{id} - Get order by ID
+
+POST /api/orders - Create new order
+
+PUT /api/orders/{id} - Update order
+
+DELETE /api/orders/{id} - Delete order
+
+---
+
+## Technologies Used
+- **Node.js** - JavaScript runtime
+- **Express.js** - Web framework
+- **MongoDB Atlas** - Cloud database
+- **Mongoose** - MongoDB ODM
+- **Swagger UI Express** - API documentation
+- **CORS** - Cross-Origin Resource Sharing
+- **dotenv** - Environment variables
+- **Vercel** - Deployment platform
+
+## Installation & Local Setup
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+- MongoDB Atlas account (or local MongoDB)
+
+### 1. Clone the repository
 ```bash
 git clone https://github.com/noturenmi/inventory.git
 cd inventory
@@ -75,92 +81,194 @@ cd inventory
 npm install
 ```
 
-### 3. Create .env file
-```bash
-MONGODB_URI=your_mongodb_atlas_connection_string
+### 3. Configure environment variables
+```evn
+PORT=3000
+MONGO_URI=mongodb+srv://your_username:your_password@cluster.mongodb.net/inventory?retryWrites=true&w=majority
 ```
 
-### 4. Run server locally
+### 4. Start the server
 ```bash
+# Development mode
+npm run dev
+
+# Production mode
 npm start
 ```
 
-Local environment:
-- API: http://localhost:3000/api/v1
-- Swagger Docs: http://localhost:3000/api-docs
+### 5. Access the API
+- API: http://localhost:3000
+- Documentation: http://localhost:3000/api-docs
 
-## API Reference
-**Base URL**
+---
+
+### API Usage Examples
+
+## Create a Product
 ```bash
-/api/v1
+curl -X POST http://localhost:3000/api/products \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Wireless Mouse",
+    "quantity": 50,
+    "price": 29.99,
+    "stock": 50
+  }'
 ```
 
-## ITEMS
-**Get all items**
+## Get All Products
 ```bash
-GET /api/v1/items
-```
-**Create new item**
-```bash
-POST /api/v1/items
-```
-**Get item by ID**
-```bash
-GET /api/v1/items/:id
-```
-**Update item**
-```bash
-PUT /api/v1/items/:id
-```
-**Delete item**
-```bash
-DELETE /api/v1/items/:id
+curl -X GET http://localhost:3000/api/products
 ```
 
-## SUPPLIERS
-**Get all suppliers**
+### API Usage Examples
+
+## Get All Products
 ```bash
-GET /api/v1/suppliers
-```
-**Create new supplier**
-```bash
-POST /api/v1/suppliers
+curl -X GET http://localhost:3000/api/products
 ```
 
-## CATEGORIES
-**Get distinct categories**
+## Create an Order
 ```bash
-GET /api/v1/categories
+curl -X POST http://localhost:3000/api/orders \
+  -H "Content-Type: application/json" \
+  -d '{
+    "productId": "prod_1",
+    "quantity": 2,
+    "customerName": "John Doe",
+    "customerEmail": "john@example.com"
+  }'
 ```
 
-## REPORTS
-**Get inventory summary**
-```bash
-GET /api/v1/reports/inventory
+### Data Models
+
+## Product
+```json
+{
+  "_id": "string",
+  "name": "string",
+  "quantity": "number",
+  "price": "number",
+  "stock": "number",
+  "createdAt": "date"
+}
 ```
 
-## Swagger Docs
-```bash
-/api/v1/swagger.json
+## Order
+```json
+{
+  "_id": "string",
+  "orderId": "string",
+  "productId": "string",
+  "productName": "string",
+  "quantity": "number",
+  "totalPrice": "string",
+  "customerName": "string",
+  "customerEmail": "string",
+  "status": "string",
+  "createdAt": "date"
+}
 ```
 
+---
 
-## Deploying on Vercel
-**1. Push code to GitHub**
+### Deployment
 
-Make sure server.js, package.json, swagger.json are included.
+## Deploy to Vercel
 
-**2. Go to Vercel → "Add New Project"**
+1. Push code to GitHub
+2. Connect repository to Vercel
+3. Add environment variables in Vercel dashboard:
+    - MONGO_URI: Your MongoDB Atlas connection string
+4. Deploy automatically on push
 
-Import your GitHub repo.
+## Vercel Configuration
+The project includes vercel.json for serverless deployment:
+```json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
+    }
+  ]
+}
+```
 
-**3. Add Environment Variables**
+---
 
-Settings → Environment Variables:
-| Key | Value |
-|-------|------------|
-| MONGODB_URI | your MongoDB Atlas URL |
+### Documentation
+- Interactive API documentation available at /api-docs
+- Built with Swagger UI
+- OpenAPI 3.0 specification in public/swagger/swagger.json
 
-**4. Deploy**
+---
 
-Vercel auto-builds and hosts the API.
+### Environment Variables
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `PORT` | Server port | No | `3000` |
+| `MONGO_URI` | MongoDB Atlas connection string | Yes | - |
+| `NODE_ENV` | Environment mode (`development`/`production`) | No | `development` |
+
+---
+
+### Troubleshooting
+
+## Vercel Configuration
+1. MongoDB Connection Error
+     - Check if MONGO_URI is correct in .env
+     - Verify MongoDB Atlas IP whitelist includes 0.0.0.0/0
+     - Ensure internet connection
+2. CORS Errors
+      - API includes CORS headers for all origins
+      - Check browser console for specific errors
+3. 404 Errors in Vercel
+      - Ensure vercel.json is present
+      - Check server.js exports correctly
+      - Verify routes are defined
+4. Swagger UI Not Loading
+      - Check if public/swagger/swagger.json exists
+      - Verify JSON syntax is valid
+
+---
+
+### Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
+
+---
+
+### License
+This project is licensed under the **ISC License**.
+
+See the [LICENSE](LICENSE) file for details.
+
+---
+
+### Star this repo if you found it useful!
+
+## **Key Sections Included:**
+
+1. **Live Demo Links** - Direct links to your deployed API
+2. **Features** - Highlight what your API does
+3. **API Endpoints** - Clear listing of all routes
+4. **Tech Stack** - Technologies used
+5. **Installation Guide** - Step-by-step setup
+6. **Usage Examples** - curl commands for testing
+7. **Data Models** - JSON structure examples
+8. **Deployment Guide** - Vercel specific instructions
+9. **Troubleshooting** - Common issues and solutions
+10. **Contributing & License** - Standard GitHub sections
+
+**Save this as `README.md`** in your project root. It's professional, informative, and helps users understand and use your API easily!
