@@ -27,12 +27,6 @@ router.put("/:id", async (req, res) => {
     res.json(updated);
 });
 
-// PATCH /items/:id
-router.patch("/:id", async (req, res) => {
-    const updated = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updated);
-});
-
 // DELETE /items/:id
 router.delete("/:id", async (req, res) => {
     await Item.findByIdAndDelete(req.params.id);

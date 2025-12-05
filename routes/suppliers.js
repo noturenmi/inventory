@@ -14,4 +14,30 @@ router.post("/", async (req, res) => {
     res.status(201).json(supplier);
 });
 
+// PUT update a supplier by ID
+router.put("/:id", async (req, res) => {
+    try {
+        const supplier = await Supplier.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true } // return the updated document
+        );
+        if (!supplier) return res.status(404).json({ message: "Supplier not found" });
+        res.json(supplier);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// DELETE a supplier by ID
+router.delete("/:id", async (req, res) => {
+    try {
+        const supplier = await Supplier.findByIdAndDelete(req.params.id);
+        if (!supplier) return res.status(404).json({ message: "Supplier not found" });
+        res.json({ message: "Supplier deleted" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 module.exports = router;
