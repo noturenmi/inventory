@@ -108,21 +108,22 @@
       }
     },
     "/api/v1/suppliers": {
-      "get": {
-        "tags": ["Suppliers"],
-        "summary": "Get all suppliers",
-        "responses": {
-          "200": { "description": "List of suppliers" }
-        }
-      },
-      "post": {
-        "tags": ["Suppliers"],
-        "summary": "Add new supplier",
-        "responses": {
-          "201": { "description": "Supplier created" }
-        }
-      },
-      "/api/v1/suppliers/{id}": {
+  "get": {
+    "tags": ["Suppliers"],
+    "summary": "Get all suppliers",
+    "responses": {
+      "200": { "description": "List of suppliers" }
+    }
+  },
+  "post": {
+    "tags": ["Suppliers"],
+    "summary": "Add new supplier",
+    "responses": {
+      "201": { "description": "Supplier created" }
+    }
+  }
+},
+"/api/v1/suppliers/{id}": {
   "delete": {
     "tags": ["Suppliers"],
     "summary": "Delete supplier",
@@ -139,6 +140,5 @@
     }
   }
 }
-    }
-  }
+}
 }
