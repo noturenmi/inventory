@@ -16,9 +16,50 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("MongoDB Connected"))
     .catch(err => console.log(err));
 
-// Default redirect
 app.get("/", (req, res) => {
-    res.redirect("/api/v1/items");
+    res.send(`
+        <h1>Inventory API</h1>
+        <p>Available Endpoints:</p>
+
+        <h2>Items</h2>
+        <ul>
+            <li><a href="/api/v1/items">GET /api/v1/items</a></li>
+            <li>POST /api/v1/items</li>
+            <li>GET /api/v1/items/:id</li>
+            <li>PUT /api/v1/items/:id</li>
+            <li>PATCH /api/v1/items/:id</li>
+            <li>DELETE /api/v1/items/:id</li>
+        </ul>
+
+        <h2>Categories</h2>
+        <ul>
+            <li><a href="/api/v1/categories">GET /api/v1/categories</a></li>
+            <li>POST /api/v1/categories</li>
+            <li>DELETE /api/v1/categories/:id</li>
+        </ul>
+
+        <h2>Suppliers</h2>
+        <ul>
+            <li><a href="/api/v1/suppliers">GET /api/v1/suppliers</a></li>
+            <li>POST /api/v1/suppliers</li>
+        </ul>
+
+        <h2>Stock</h2>
+        <ul>
+            <li>GET /api/v1/stock/:itemId</li>
+            <li>PATCH /api/v1/stock/:itemId</li>
+        </ul>
+
+        <h2>Reports</h2>
+        <ul>
+            <li><a href="/api/v1/reports/inventory">GET /api/v1/reports/inventory</a></li>
+        </ul>
+
+        <h2>Documentation</h2>
+        <ul>
+            <li><a href="/api-docs">Swagger UI</a></li>
+        </ul>
+    `);
 });
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
