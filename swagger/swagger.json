@@ -121,7 +121,24 @@
         "responses": {
           "201": { "description": "Supplier created" }
         }
+      },
+      "/api/v1/suppliers/{id}": {
+  "delete": {
+    "tags": ["Suppliers"],
+    "summary": "Delete supplier",
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string" }
       }
+    ],
+    "responses": {
+      "200": { "description": "Supplier deleted" }
+    }
+  }
+}
     }
   }
 }
