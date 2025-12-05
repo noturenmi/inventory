@@ -25,5 +25,5 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Start Server
 app.listen(process.env.PORT, () =>
-    console.log(Server running on port ${process.env.PORT})
+  console.log(`Server running on port ${process.env.PORT}`)
 );
