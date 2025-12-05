@@ -8,22 +8,26 @@ router.get("/", async (req, res) => {
     res.json(items);
 });
 
-// POST new item
+// POST create item
 router.post("/", async (req, res) => {
     const item = new Item(req.body);
     await item.save();
-    res.json(item);
+    res.status(201).json(item);
 });
 
-// GET specific item
+// GET item by ID
 router.get("/:id", async (req, res) => {
     const item = await Item.findById(req.params.id);
     res.json(item);
 });
 
-// PATCH update item
-router.patch("/:id", async (req, res) => {
-    const item = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
+// PUT update item
+router.put("/:id", async (req, res) => {
+    const item = await Item.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true }
+    );
     res.json(item);
 });
 
