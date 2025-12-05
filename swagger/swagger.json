@@ -5,27 +5,31 @@
     "version": "1.0.0",
     "description": "API documentation for Inventory System"
   },
+  "tags": [
+    { "name": "Items", "description": "Operations about inventory items" },
+    { "name": "Categories", "description": "Operations about categories" },
+    { "name": "Suppliers", "description": "Operations about suppliers" }
+  ],
   "paths": {
     "/api/v1/items": {
       "get": {
+        "tags": ["Items"],
         "summary": "Get all items",
         "responses": {
-          "200": {
-            "description": "List of items"
-          }
+          "200": { "description": "List of items" }
         }
       },
       "post": {
+        "tags": ["Items"],
         "summary": "Add new item",
         "responses": {
-          "201": {
-            "description": "Item created"
-          }
+          "201": { "description": "Item created" }
         }
       }
     },
     "/api/v1/items/{id}": {
       "get": {
+        "tags": ["Items"],
         "summary": "Get item by ID",
         "parameters": [
           {
@@ -40,6 +44,7 @@
         }
       },
       "put": {
+        "tags": ["Items"],
         "summary": "Update item",
         "parameters": [
           {
@@ -54,6 +59,7 @@
         }
       },
       "delete": {
+        "tags": ["Items"],
         "summary": "Delete item",
         "parameters": [
           {
@@ -70,12 +76,14 @@
     },
     "/api/v1/categories": {
       "get": {
+        "tags": ["Categories"],
         "summary": "Get all categories",
         "responses": {
           "200": { "description": "List of categories" }
         }
       },
       "post": {
+        "tags": ["Categories"],
         "summary": "Add new category",
         "responses": {
           "201": { "description": "Category created" }
@@ -84,6 +92,7 @@
     },
     "/api/v1/categories/{id}": {
       "delete": {
+        "tags": ["Categories"],
         "summary": "Delete category",
         "parameters": [
           {
@@ -100,12 +109,14 @@
     },
     "/api/v1/suppliers": {
       "get": {
+        "tags": ["Suppliers"],
         "summary": "Get all suppliers",
         "responses": {
           "200": { "description": "List of suppliers" }
         }
       },
       "post": {
+        "tags": ["Suppliers"],
         "summary": "Add new supplier",
         "responses": {
           "201": { "description": "Supplier created" }
