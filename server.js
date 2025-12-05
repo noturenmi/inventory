@@ -17,6 +17,10 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("MongoDB Connected"))
     .catch(err => console.log(err));
 
+app.get("/", (req, res) => {
+    res.redirect("/api/v1/items");
+});
+
 // API v1 Routes
 app.use("/api/v1/items", require("./routes/items"));
 
