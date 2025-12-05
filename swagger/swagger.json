@@ -132,6 +132,30 @@
   }
 },
 "/api/v1/suppliers/{id}": {
+   "put": {
+        "tags": ["Suppliers"],
+        "summary": "Update supplier by ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "contact": { "type": "string" },
+                  "phone": { "type": "string" },
+                  "address": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Supplier updated" } }
+      },
   "delete": {
     "tags": ["Suppliers"],
     "summary": "Delete supplier",
