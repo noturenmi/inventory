@@ -91,6 +91,14 @@
       }
     },
     "/api/v1/categories/{id}": {
+      "put": {
+        "tags": ["Categories"],
+        "summary": "Update category",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Category updated" } }
+      },
       "delete": {
         "tags": ["Categories"],
         "summary": "Delete category",
