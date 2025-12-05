@@ -31,13 +31,12 @@
           {
             "name": "id",
             "in": "path",
-            "required": true
+            "required": true,
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Item details"
-          }
+          "200": { "description": "Item details" }
         }
       },
       "put": {
@@ -46,13 +45,12 @@
           {
             "name": "id",
             "in": "path",
-            "required": true
+            "required": true,
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Item updated"
-          }
+          "200": { "description": "Item updated" }
         }
       },
       "delete": {
@@ -61,13 +59,56 @@
           {
             "name": "id",
             "in": "path",
-            "required": true
+            "required": true,
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Item deleted"
+          "200": { "description": "Item deleted" }
+        }
+      }
+    },
+    "/api/v1/categories": {
+      "get": {
+        "summary": "Get all categories",
+        "responses": {
+          "200": { "description": "List of categories" }
+        }
+      },
+      "post": {
+        "summary": "Add new category",
+        "responses": {
+          "201": { "description": "Category created" }
+        }
+      }
+    },
+    "/api/v1/categories/{id}": {
+      "delete": {
+        "summary": "Delete category",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
           }
+        ],
+        "responses": {
+          "200": { "description": "Category deleted" }
+        }
+      }
+    },
+    "/api/v1/suppliers": {
+      "get": {
+        "summary": "Get all suppliers",
+        "responses": {
+          "200": { "description": "List of suppliers" }
+        }
+      },
+      "post": {
+        "summary": "Add new supplier",
+        "responses": {
+          "201": { "description": "Supplier created" }
         }
       }
     }
