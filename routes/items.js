@@ -21,14 +21,24 @@ router.get("/:id", async (req, res) => {
     res.json(item);
 });
 
-// PUT update item
+// PUT update item (fix)
 router.put("/:id", async (req, res) => {
-    const item = await Item.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true }
-    );
-    res.json(item);
+    try {
+        const item = await Item.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        if (!item) {
+            return res.status(404).json({ message: "Item not found" });
+        }
+
+        res.json(item);
+
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
 });
 
 // DELETE item
