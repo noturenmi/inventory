@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Zentiels Inventory Management API v1.0",
-    "version": "1.0.0",
-    "description": "Complete REST API for managing products, orders, and suppliers",
+    "title": "Zentiels Inventory Management API",
+    "version": "2.0.0",
+    "description": "Complete REST API for managing products, orders, and suppliers with MongoDB backend.",
     "contact": {
       "name": "API Support",
       "url": "https://github.com/noturenmi/inventory/issues"
@@ -15,20 +15,12 @@
   },
   "servers": [
     {
-      "url": "https://zentiels-inventory.vercel.app/api/v1",
-      "description": "Production server (v1)"
-    },
-    {
-      "url": "http://localhost:3000/api/v1",
-      "description": "Local development server (v1)"
-    },
-    {
       "url": "https://zentiels-inventory.vercel.app",
-      "description": "Production root"
+      "description": "Production server"
     },
     {
       "url": "http://localhost:3000",
-      "description": "Local root"
+      "description": "Local development server"
     }
   ],
   "tags": [
@@ -43,35 +35,31 @@
     {
       "name": "Suppliers",
       "description": "Supplier information management"
-    },
-    {
-      "name": "Auth",
-      "description": "Authentication endpoints"
-    },
-    {
-      "name": "General",
-      "description": "General API endpoints"
     }
   ],
   "paths": {
     "/": {
       "get": {
-        "tags": ["General"],
-        "summary": "API Root",
-        "description": "Get API information",
+        "tags": ["Health"],
+        "summary": "API Health Check",
+        "description": "Check if the API is running and get available endpoints",
         "responses": {
           "200": {
-            "description": "API information",
+            "description": "API is running",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
                     "message": { "type": "string" },
-                    "version": { "type": "string" },
+                    "endpoints": { "type": "array", "items": { "type": "string" } },
                     "timestamp": { "type": "string", "format": "date-time" }
                   }
+                },
+                "example": {
+                  "message": "✅ API is WORKING!",
+                  "endpoints": ["/api/products", "/api/orders", "/api/suppliers", "/api-docs"],
+                  "timestamp": "2024-01-15T10:30:00.000Z"
                 }
               }
             }
@@ -79,199 +67,7 @@
         }
       }
     },
-    "/api/v1": {
-      "get": {
-        "tags": ["General"],
-        "summary": "API v1 Information",
-        "description": "Get API v1 endpoints information",
-        "responses": {
-          "200": {
-            "description": "API v1 information",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": { "type": "boolean" },
-                    "message": { "type": "string" },
-                    "endpoints": { "type": "object" }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/health": {
-      "get": {
-        "tags": ["General"],
-        "summary": "Health Check",
-        "description": "Check if API is running",
-        "responses": {
-          "200": {
-            "description": "API is healthy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": { "type": "boolean" },
-                    "status": { "type": "string" },
-                    "timestamp": { "type": "string", "format": "date-time" }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/auth/register": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Register new user",
-        "description": "Register a new user account",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["username", "password", "email"],
-                "properties": {
-                  "username": { "type": "string", "example": "newuser" },
-                  "password": { "type": "string", "example": "password123" },
-                  "email": { "type": "string", "example": "user@example.com" },
-                  "role": { "type": "string", "example": "user", "enum": ["user", "admin"] }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "User registered successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": { "type": "boolean" },
-                    "message": { "type": "string" },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "token": { "type": "string" },
-                        "user": {
-                          "type": "object",
-                          "properties": {
-                            "id": { "type": "integer" },
-                            "username": { "type": "string" },
-                            "email": { "type": "string" },
-                            "role": { "type": "string" }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": { "description": "Validation error" },
-          "500": { "description": "Server error" }
-        }
-      }
-    },
-    "/api/v1/auth/login": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "User login",
-        "description": "Authenticate user and get JWT token",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["username", "password"],
-                "properties": {
-                  "username": { "type": "string", "example": "admin" },
-                  "password": { "type": "string", "example": "admin123" }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Login successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": { "type": "boolean" },
-                    "message": { "type": "string" },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "token": { "type": "string" },
-                        "user": {
-                          "type": "object",
-                          "properties": {
-                            "id": { "type": "integer" },
-                            "username": { "type": "string" },
-                            "email": { "type": "string" },
-                            "role": { "type": "string" }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": { "description": "Invalid credentials" },
-          "500": { "description": "Server error" }
-        }
-      }
-    },
-    "/api/v1/auth/me": {
-      "get": {
-        "tags": ["Auth"],
-        "summary": "Get current user profile",
-        "description": "Get authenticated user profile information",
-        "responses": {
-          "200": {
-            "description": "User profile",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": { "type": "boolean" },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "id": { "type": "integer" },
-                        "username": { "type": "string" },
-                        "email": { "type": "string" },
-                        "role": { "type": "string" }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": { "description": "Not authenticated" }
-        }
-      }
-    },
-    "/api/v1/products": {
+    "/api/products": {
       "get": {
         "tags": ["Products"],
         "summary": "Get all products",
@@ -331,7 +127,7 @@
         }
       }
     },
-    "/api/v1/products/{id}": {
+    "/api/products/{id}": {
       "get": {
         "tags": ["Products"],
         "summary": "Get product by ID",
@@ -440,7 +236,7 @@
         }
       }
     },
-    "/api/v1/orders": {
+    "/api/orders": {
       "get": {
         "tags": ["Orders"],
         "summary": "Get all orders",
@@ -500,7 +296,7 @@
         }
       }
     },
-    "/api/v1/orders/{id}": {
+    "/api/orders/{id}": {
       "get": {
         "tags": ["Orders"],
         "summary": "Get order by ID",
@@ -604,7 +400,7 @@
         }
       }
     },
-    "/api/v1/suppliers": {
+    "/api/suppliers": {
       "get": {
         "tags": ["Suppliers"],
         "summary": "Get all suppliers",
@@ -664,7 +460,7 @@
         }
       }
     },
-    "/api/v1/suppliers/{id}": {
+    "/api/suppliers/{id}": {
       "get": {
         "tags": ["Suppliers"],
         "summary": "Get supplier by ID",
@@ -771,7 +567,7 @@
     },
     "/api-docs": {
       "get": {
-        "tags": ["General"],
+        "tags": ["Documentation"],
         "summary": "Swagger UI Documentation",
         "description": "Interactive API documentation",
         "responses": {
@@ -783,20 +579,13 @@
     }
   },
   "components": {
-    "securitySchemes": {
-      "BearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      }
-    },
     "schemas": {
       "Product": {
         "type": "object",
         "properties": {
           "_id": {
             "type": "string",
-            "example": "prod_1"
+            "example": "auto_gen_1_1700000000000"
           },
           "name": {
             "type": "string",
@@ -816,7 +605,7 @@
           },
           "description": {
             "type": "string",
-            "example": "Ergonomic wireless mouse"
+            "example": "Dynamic product description"
           },
           "category": {
             "type": "string",
@@ -875,11 +664,11 @@
         "properties": {
           "_id": {
             "type": "string",
-            "example": "order_1"
+            "example": "order_1700000000000"
           },
           "orderId": {
             "type": "string",
-            "example": "ORD001"
+            "example": "ORD123456"
           },
           "productId": {
             "type": "string",
