@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger/swagger.json");
 
 dotenv.config();
 const app = express();
@@ -18,6 +20,8 @@ mongoose.connect(process.env.MONGO_URI)
 app.get("/", (req, res) => {
     res.redirect("/api/v1/items");
 });
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // API Routes
 app.use("/api/v1/items", require("./routes/items"));
