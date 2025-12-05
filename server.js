@@ -33,12 +33,6 @@ app.use("/api/v1/categories", require("./routes/categories"));
 // Suppliers
 app.use("/api/v1/suppliers", require("./routes/suppliers"));
 
-// Stock
-app.use("/api/v1/stock", require("./routes/stock"));
-
-// Reports
-app.use("/api/v1/reports", require("./routes/reports"));
-
 // Swagger Documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
