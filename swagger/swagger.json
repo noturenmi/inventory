@@ -40,7 +40,7 @@
           }
         }
       },
-      "patch": {
+      "put": {
         "summary": "Update item",
         "parameters": [
           {
