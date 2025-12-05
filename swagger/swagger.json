@@ -1,0 +1,75 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Inventory System API",
+    "version": "1.0.0",
+    "description": "API documentation for Inventory System"
+  },
+  "paths": {
+    "/api/v1/items": {
+      "get": {
+        "summary": "Get all items",
+        "responses": {
+          "200": {
+            "description": "List of items"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add new item",
+        "responses": {
+          "201": {
+            "description": "Item created"
+          }
+        }
+      }
+    },
+    "/api/v1/items/{id}": {
+      "get": {
+        "summary": "Get item by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item details"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item deleted"
+          }
+        }
+      }
+    }
+  }
+}
