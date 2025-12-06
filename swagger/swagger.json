@@ -139,6 +139,19 @@
     },
 
     "/api/v1/categories/{id}": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Get category by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Category details" } }
+      },
       "put": {
         "tags": ["Categories"],
         "summary": "Update category",
