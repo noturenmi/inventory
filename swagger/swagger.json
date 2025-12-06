@@ -6,27 +6,41 @@
     "description": "API documentation for Inventory System"
   },
   "tags": [
-    { "name": "Items", "description": "Operations about inventory items" },
-    { "name": "Categories", "description": "Operations about categories" },
-    { "name": "Suppliers", "description": "Operations about suppliers" }
+    { "name": "Items", "description": "Inventory item operations" },
+    { "name": "Categories", "description": "Category operations" },
+    { "name": "Suppliers", "description": "Supplier operations" }
   ],
   "paths": {
     "/api/v1/items": {
       "get": {
         "tags": ["Items"],
         "summary": "Get all items",
-        "responses": {
-          "200": { "description": "List of items" }
-        }
+        "responses": { "200": { "description": "List of all items" } }
       },
       "post": {
         "tags": ["Items"],
-        "summary": "Add new item",
-        "responses": {
-          "201": { "description": "Item created" }
-        }
+        "summary": "Create new item",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "category": { "type": "string" },
+                  "supplier": { "type": "string" },
+                  "stock": { "type": "integer" }
+                },
+                "required": ["name", "category", "supplier", "stock"]
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Item created" } }
       }
     },
+
     "/api/v1/items/{id}": {
       "get": {
         "tags": ["Items"],
@@ -39,57 +53,70 @@
             "schema": { "type": "string" }
           }
         ],
-        "responses": {
-          "200": { "description": "Item details" }
-        }
+        "responses": { "200": { "description": "Item details" } }
       },
       "put": {
         "tags": ["Items"],
         "summary": "Update item",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string" }
-          }
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "responses": {
-          "200": { "description": "Item updated" }
-        }
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "category": { "type": "string" },
+                  "supplier": { "type": "string" },
+                  "stock": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Item updated" } }
       },
       "delete": {
         "tags": ["Items"],
         "summary": "Delete item",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string" }
-          }
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "responses": {
-          "200": { "description": "Item deleted" }
-        }
+        "responses": { "200": { "description": "Item deleted" } }
       }
     },
+
     "/api/v1/categories": {
       "get": {
         "tags": ["Categories"],
         "summary": "Get all categories",
-        "responses": {
-          "200": { "description": "List of categories" }
-        }
+        "responses": { "200": { "description": "List of categories" } }
       },
       "post": {
         "tags": ["Categories"],
-        "summary": "Add new category",
-        "responses": {
-          "201": { "description": "Category created" }
-        }
+        "summary": "Create category",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "description": { "type": "string" }
+                },
+                "required": ["name"]
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Category created" } }
       }
     },
+
     "/api/v1/categories/{id}": {
       "put": {
         "tags": ["Categories"],
@@ -97,44 +124,66 @@
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "description": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
         "responses": { "200": { "description": "Category updated" } }
       },
       "delete": {
         "tags": ["Categories"],
         "summary": "Delete category",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string" }
-          }
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "responses": {
-          "200": { "description": "Category deleted" }
-        }
+        "responses": { "200": { "description": "Category deleted" } }
       }
     },
+
     "/api/v1/suppliers": {
-  "get": {
-    "tags": ["Suppliers"],
-    "summary": "Get all suppliers",
-    "responses": {
-      "200": { "description": "List of suppliers" }
-    }
-  },
-  "post": {
-    "tags": ["Suppliers"],
-    "summary": "Add new supplier",
-    "responses": {
-      "201": { "description": "Supplier created" }
-    }
-  }
-},
-"/api/v1/suppliers/{id}": {
-   "put": {
+      "get": {
         "tags": ["Suppliers"],
-        "summary": "Update supplier by ID",
+        "summary": "Get all suppliers",
+        "responses": { "200": { "description": "List of suppliers" } }
+      },
+      "post": {
+        "tags": ["Suppliers"],
+        "summary": "Create supplier",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "contact": { "type": "string" },
+                  "phone": { "type": "string" },
+                  "address": { "type": "string" }
+                },
+                "required": ["name"]
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Supplier created" } }
+      }
+    },
+
+    "/api/v1/suppliers/{id}": {
+      "put": {
+        "tags": ["Suppliers"],
+        "summary": "Update supplier",
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
@@ -156,21 +205,14 @@
         },
         "responses": { "200": { "description": "Supplier updated" } }
       },
-  "delete": {
-    "tags": ["Suppliers"],
-    "summary": "Delete supplier",
-    "parameters": [
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": { "type": "string" }
+      "delete": {
+        "tags": ["Suppliers"],
+        "summary": "Delete supplier",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Supplier deleted" } }
       }
-    ],
-    "responses": {
-      "200": { "description": "Supplier deleted" }
     }
   }
-}
-}
 }
