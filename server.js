@@ -119,37 +119,6 @@ app.get("/", (req, res) => {
     `);
 });
 
-// Serve Swagger UI using CDN
-app.get("/api-docs", (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Swagger UI</title>
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.1/swagger-ui.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.1/swagger-ui-bundle.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.1/swagger-ui-standalone-preset.js"></script>
-    </head>
-    <body>
-        <div id="swagger-ui"></div>
-        <script>
-            const ui = SwaggerUIBundle({
-                url: "/swagger",  // Use the route where your swagger.json is served
-                dom_id: '#swagger-ui',
-                deepLinking: true,
-                presets: [
-                    SwaggerUIBundle.presets.apis,
-                    SwaggerUIStandalonePreset
-                ],
-                layout: "StandaloneLayout"
-            });
-        </script>
-    </body>
-    </html>
-  `);
-});
-
 // ============================
 // START SERVER
 // ============================
