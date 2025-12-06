@@ -1,55 +1,200 @@
+// ==============================
+// Inventory API 
+// Node.js + Express + MongoDB Atlas
+// ==============================
+
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
 const cors = require("cors");
-const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("./swagger/swagger.json");
-const fs = require("fs");
-const path = require("path");
 
-// Load environment variables
-dotenv.config();
-
-// Initialize app
 const app = express();
-
-// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("✅ MongoDB Connected"))
-    .catch(err => console.log("❌ MongoDB connection error:", err));
+//===========================
+// MongoDB Connection 
+//===========================
+let isConnected = false;
 
-// ============================
+async function connectToDatabase() {
+  if (isConnected) return;
+
+  try {
+    const db = await mongoose.connect(process.env.MONGODB_URI);
+    isConnected = db.connections[0].readyState === 1;
+    console.log("📡 MongoDB Connected.");
+  } catch (err) {
+    console.error("❌ MongoDB Connection Error:", err);
+  }
+}
+
+//===========================
+// MODELS
+//===========================
+const supplierSchema = new mongoose.Schema({
+  name: { type: String, required: true, unique: true },
+  contact: String,
+  phone: String,
+  email: String,
+  address: String,
+});
+const Supplier = mongoose.models.Supplier || mongoose.model("Supplier", supplierSchema);
+
+const itemSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  category: { type: String, default: "General" },
+  stock: { type: Number, default: 0 },
+  price: { type: Number, default: 0 },
+  supplier: { type: mongoose.Schema.Types.ObjectId, ref: "Supplier" },
+});
+const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
+
+//===========================
 // ROUTES
-// ============================
-
-// Items
-app.use("/api/v1/items", require("./routes/items"));
-
-// Categories
-app.use("/api/v1/categories", require("./routes/categories"));
-
-// Suppliers
-app.use("/api/v1/suppliers", require("./routes/suppliers"));
-
-// Swagger Documentation
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// Serve Swagger JSON at /swagger
-app.get("/swagger", (req, res) => {
-  res.sendFile(path.join(__dirname, "swagger", "swagger.json"));
+//===========================
+app.get("/", (req, res) => {
+  res.send("📦 Inventory API is running!");
 });
 
-// Serve Swagger UI and static files
-app.use("/swagger", express.static(path.join(__dirname, "swagger")));
+// --- ITEMS ---
+app.post("/items", async (req, res) => {
+  await connectToDatabase();
+  try {
+    const item = new Item(req.body);
+    await item.save();
+    res.status(201).json(item);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
 
-// ============================
-// START SERVER
-// ============================
+app.get("/items", async (req, res) => {
+  await connectToDatabase();
+  try {
+    const items = await Item.find().populate("supplier");
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get("/items/:id", async (req, res) => {
+  await connectToDatabase();
+  try {
+    const item = await Item.findById(req.params.id).populate("supplier");
+    if (!item) return res.status(404).json({ message: "Item not found" });
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.put("/items/:id", async (req, res) => {
+  await connectToDatabase();
+  try {
+    const item = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!item) return res.status(404).json({ message: "Item not found" });
+    res.json(item);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+app.delete("/items/:id", async (req, res) => {
+  await connectToDatabase();
+  try {
+    const item = await Item.findByIdAndDelete(req.params.id);
+    if (!item) return res.status(404).json({ message: "Item not found" });
+    res.json({ message: "Item deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// --- SUPPLIERS ---
+app.post("/suppliers", async (req, res) => {
+  await connectToDatabase();
+  try {
+    const supplier = new Supplier(req.body);
+    await supplier.save();
+    res.status(201).json(supplier);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+app.get("/suppliers", async (req, res) => {
+  await connectToDatabase();
+  try {
+    const suppliers = await Supplier.find();
+    res.json(suppliers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
+// --- CATEGORIES ---
+app.get("/categories", async (req, res) => {
+  await connectToDatabase();
+  try {
+    const categories = await Item.distinct("category");
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// --- INVENTORY SUMMARY / REPORTS ---
+app.get("/reports/inventory", async (req, res) => {
+  await connectToDatabase();
+  try {
+    const items = await Item.find().populate("supplier");
+
+    const totalItems = items.length;
+    const totalStock = items.reduce((sum, item) => sum + item.stock, 0);
+    const totalValue = items.reduce((sum, item) => sum + item.stock * item.price, 0);
+
+    const byCategory = {};
+    items.forEach(item => {
+      if (!byCategory[item.category]) {
+        byCategory[item.category] = { count: 0, totalStock: 0, totalValue: 0 };
+      }
+      byCategory[item.category].count += 1;
+      byCategory[item.category].totalStock += item.stock;
+      byCategory[item.category].totalValue += item.stock * item.price;
+    });
+
+    const categorySummary = Object.keys(byCategory).map(cat => ({
+      _id: cat,
+      count: byCategory[cat].count,
+      totalStock: byCategory[cat].totalStock,
+      totalValue: byCategory[cat].totalValue,
+    }));
+
+    const lowStock = items.filter(item => item.stock <= 5);
+
+    res.json({
+      totalItems,
+      totalStock,
+      totalValue,
+      byCategory: categorySummary,
+      lowStock,
+      lowStockThreshold: 5,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+//===========================
+// Localhost
+//===========================
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Local server running on http://localhost:${PORT}`));
 
+//===========================
+// Export app for Vercel serverless
+//===========================
 module.exports = app;
