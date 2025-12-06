@@ -38,6 +38,11 @@ app.use("/api/v1/suppliers", require("./routes/suppliers"));
 // Swagger Documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// Serve Swagger JSON at /swagger
+app.get("/swagger", (req, res) => {
+  res.sendFile(path.join(__dirname, "swagger", "swagger.json"));
+});
+
 // Serve Swagger UI and static files
 app.use("/swagger", express.static(path.join(__dirname, "swagger")));
 
@@ -112,6 +117,37 @@ app.get("/", (req, res) => {
         </body>
         </html>
     `);
+});
+
+// Serve Swagger UI using CDN
+app.get("/api-docs", (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Swagger UI</title>
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.1/swagger-ui.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.1/swagger-ui-bundle.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.1/swagger-ui-standalone-preset.js"></script>
+    </head>
+    <body>
+        <div id="swagger-ui"></div>
+        <script>
+            const ui = SwaggerUIBundle({
+                url: "/swagger",  // Use the route where your swagger.json is served
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                layout: "StandaloneLayout"
+            });
+        </script>
+    </body>
+    </html>
+  `);
 });
 
 // ============================
