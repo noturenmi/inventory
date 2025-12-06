@@ -226,6 +226,19 @@
       }
     },  
       "/api/v1/suppliers/{id}": {
+      "get": {
+        "tags": ["Suppliers"],
+        "summary": "Get supplier by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Supplier details" } }
+      },
       "put": {
         "tags": ["Suppliers"],
         "summary": "Update supplier",
