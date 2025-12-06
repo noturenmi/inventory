@@ -59,43 +59,34 @@
       },
 
       "put": {
-    "tags": ["Items"],
-    "summary": "Update an item",
-    "parameters": [
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": { "type": "string" }
-      }
-    ],
-    "requestBody": {
-      "required": true,
-      "content": {
-        "application/json": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "name": { "type": "string" },
-              "category": { "type": "string" },
-              "supplier": { "type": "string" },
-              "stock": { "type": "number" }
-            }
-          },
-          "example": {
-            "name": "Updated Keyboard",
-            "category": "Accessories",
-            "supplier": "Supplier C",
-            "stock": 50
+        "tags": ["Items"],
+        "summary": "Update item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
           }
-        }
-      }
-    },
-    "responses": {
-      "200": { "description": "Item updated" }
-    }
-  }
-},
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "category": { "type": "string" },
+                  "supplier": { "type": "string" },
+                  "stock": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Item updated" } }
+      },
       "delete": {
         "tags": ["Items"],
         "summary": "Delete item",
@@ -233,3 +224,4 @@
       }
     }
   }
+}
