@@ -23,6 +23,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "mongoose": "^9.0.1",
+    "swagger-ui-dist": "^5.30.3",
     "swagger-ui-express": "^5.0.1"
   }
 }
