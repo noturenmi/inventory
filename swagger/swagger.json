@@ -35,7 +35,12 @@
                   "stock": { "type": "number" }
                 },
                 "required": ["name","category","supplier","stock"]
-              }
+              },
+              "example": {
+                "name": "Keyboard",
+                "category": "Accessories",
+                "supplier": "Supplier A",
+                "stock": 100
             }
           }
         },
@@ -81,6 +86,7 @@
                   "stock": { "type": "number" }
                 }
               },
+              "required": ["name","category","supplier","stock"],
               "example": {
                 "name": "Updated Keyboard",
                 "category": "Accessories",
@@ -130,6 +136,9 @@
                   "name": { "type": "string" }
                 },
                 "required": ["name"]
+              },
+              "example": {
+                "name": "Electronics"
               }
             }
           }
@@ -173,7 +182,9 @@
                   "name": { "type": "string" }
                 },
                 "required": ["name"]
-              }
+              },
+              "example": {
+                "name": "Updated Category"
             }
           }
         },
@@ -218,6 +229,11 @@
                   "address": { "type": "string" }
                 },
                 "required": ["name"]
+              },
+              "example": {
+                "name": "Supplier Y",
+                "phone": "987-654-3210",
+                "address": "456 Supplier Ave, City, Country"
               }
             }
           }
@@ -260,8 +276,13 @@
                   "name": { "type": "string" },
                   "phone": { "type": "string" },
                   "address": { "type": "string" }
-                }
-              }
+                },
+                "required": ["name"]
+              },
+              "example": {
+                "name": "Supplier X",
+                "phone": "123-456-7890",
+                "address": "123 Supplier St, City, Country"
             }
           }
         },
@@ -282,4 +303,7 @@
       }
     }
   }
+}
+}
+}
 }
