@@ -4,6 +4,12 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger/swagger.json");
+const swaggerUi = require("swagger-ui-express");
+const fs = require("fs");
+const path = require("path");
+const swaggerDocument = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "swagger.json"), "utf8")
+);
 
 // Load environment variables
 dotenv.config();
@@ -14,6 +20,7 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
