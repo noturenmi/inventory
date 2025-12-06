@@ -36,10 +36,8 @@ app.use("/api/v1/categories", require("./routes/categories"));
 app.use("/api/v1/suppliers", require("./routes/suppliers"));
 
 // Swagger Documentation
+const swaggerDocument = require(path.join(__dirname, "swagger", "swagger.json"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// Serve Swagger UI and static files
-app.use("/swagger", express.static(path.join(__dirname, "swagger")));
 
 // ============================
 // DASHBOARD HOMEPAGE
