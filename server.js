@@ -46,8 +46,6 @@ app.get("/swagger", (req, res) => {
 // Serve Swagger UI and static files
 app.use("/swagger", express.static(path.join(__dirname, "swagger")));
 
-app.use("/api/auth", require("./routes/auth"));
-
 // ============================
 // DASHBOARD HOMEPAGE
 // ============================
