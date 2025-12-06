@@ -211,41 +211,7 @@
         },
         "responses": { "201": { "description": "Supplier created" } }
       },
-       "put": {
-    "tags": ["Categories"],
-    "summary": "Update a category",
-    "parameters": [
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": { "type": "string" },
-        "example": "672abc12f91d123456789012"
-      }
-    ],
-    "requestBody": {
-      "required": true,
-      "content": {
-        "application/json": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "name": { "type": "string", "example": "Updated Category Name" }
-            },
-            "required": ["name"]
-          },
-          "example": {
-            "name": "Updated Category Name"
-          }
-        }
-      }
-    },
-    "responses": {
-      "200": { "description": "Category updated" },
-      "404": { "description": "Category not found" }
-    }
-  }
-},
+
     "/api/v1/suppliers/{id}": {
       "put": {
         "tags": ["Suppliers"],
@@ -291,4 +257,5 @@
       }
     }
   }
+}
 }
