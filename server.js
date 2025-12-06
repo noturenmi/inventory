@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("../swagger/swagger.json");
+const swaggerDocument = require("./swagger/swagger.json");
 const fs = require("fs");
 const path = require("path");
 
@@ -27,13 +27,13 @@ mongoose.connect(process.env.MONGO_URI)
 // ============================
 
 // Items
-app.use("/api/v1/items", require("../routes/items"));
+app.use("/api/v1/items", require("./routes/items"));
 
 // Categories
-app.use("/api/v1/categories", require("../routes/categories"));
+app.use("/api/v1/categories", require("./routes/categories"));
 
 // Suppliers
-app.use("/api/v1/suppliers", require("../routes/suppliers"));
+app.use("/api/v1/suppliers", require("./routes/suppliers"));
 
 // Swagger Documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
