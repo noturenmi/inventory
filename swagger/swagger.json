@@ -57,10 +57,9 @@
         ],
         "responses": { "200": { "description": "Item details" } }
       },
-
-      "put": {
+        "put": {
         "tags": ["Items"],
-        "summary": "Update item",
+        "summary": "Update an item",
         "parameters": [
           {
             "name": "id",
@@ -81,11 +80,19 @@
                   "supplier": { "type": "string" },
                   "stock": { "type": "number" }
                 }
+              },
+              "example": {
+                "name": "Updated Keyboard",
+                "category": "Accessories",
+                "supplier": "Supplier C",
+                "stock": 50
               }
             }
           }
         },
-        "responses": { "200": { "description": "Item updated" } }
+        "responses": {
+          "200": { "description": "Item updated" }
+        }
       },
       "delete": {
         "tags": ["Items"],
