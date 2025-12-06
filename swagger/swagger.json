@@ -43,7 +43,7 @@
       }
     },
 
-    "/api/v1/items/{id}": {
+     "/api/v1/items/{id}": {
       "get": {
         "tags": ["Items"],
         "summary": "Get item by ID",
@@ -52,21 +52,21 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {"type": "string"}
           }
         ],
         "responses": { "200": { "description": "Item details" } }
       },
-      "paths": {
-    "/api/v1/items/{id}": {
+
       "put": {
-        "summary": "Test PUT",
+        "tags": ["Items"],
+        "summary": "Update an item",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {"type": "string"}
           }
         ],
         "requestBody": {
@@ -77,17 +77,16 @@
                 "type": "object",
                 "properties": {
                   "name": { "type": "string" },
-                  "age": { "type": "number" }
+                  "category": { "type": "string" },
+                  "supplier": { "type": "string" },
+                  "stock": { "type": "number" }
                 }
               }
             }
           }
         },
-        "responses": {
-          "200": { "description": "OK" }
-        }
-      }
-    },
+        "responses": { "200": { "description": "Updated item" } }
+      },
       "delete": {
         "tags": ["Items"],
         "summary": "Delete item",
@@ -226,4 +225,3 @@
     }
   }
 } 
-}
