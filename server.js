@@ -1,5 +1,5 @@
 // ==============================
-// Inventory API 
+// Inventory API (Vercel-Ready)
 // Node.js + Express + MongoDB Atlas
 // ==============================
 
@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 //===========================
-// MongoDB Connection 
+// MongoDB Connection (Optimized for Serverless)
 //===========================
 let isConnected = false;
 
@@ -50,15 +50,18 @@ const itemSchema = new mongoose.Schema({
 });
 const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
 
-//===========================
-// ROUTES
-//===========================
-app.get("/", (req, res) => {
-  res.send("📦 Inventory API is running!");
+// ===========================
+// API BASE ROUTER (/api/v1)
+// ===========================
+const router = express.Router();
+
+// --- ROOT CHECK ---
+router.get("/", (req, res) => {
+  res.send("📦 Inventory API v1 is running!");
 });
 
 // --- ITEMS ---
-app.post("/items", async (req, res) => {
+router.post("/items", async (req, res) => {
   await connectToDatabase();
   try {
     const item = new Item(req.body);
@@ -69,7 +72,7 @@ app.post("/items", async (req, res) => {
   }
 });
 
-app.get("/items", async (req, res) => {
+router.get("/items", async (req, res) => {
   await connectToDatabase();
   try {
     const items = await Item.find().populate("supplier");
@@ -79,7 +82,7 @@ app.get("/items", async (req, res) => {
   }
 });
 
-app.get("/items/:id", async (req, res) => {
+router.get("/items/:id", async (req, res) => {
   await connectToDatabase();
   try {
     const item = await Item.findById(req.params.id).populate("supplier");
@@ -90,7 +93,7 @@ app.get("/items/:id", async (req, res) => {
   }
 });
 
-app.put("/items/:id", async (req, res) => {
+router.put("/items/:id", async (req, res) => {
   await connectToDatabase();
   try {
     const item = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -101,7 +104,7 @@ app.put("/items/:id", async (req, res) => {
   }
 });
 
-app.delete("/items/:id", async (req, res) => {
+router.delete("/items/:id", async (req, res) => {
   await connectToDatabase();
   try {
     const item = await Item.findByIdAndDelete(req.params.id);
@@ -113,7 +116,7 @@ app.delete("/items/:id", async (req, res) => {
 });
 
 // --- SUPPLIERS ---
-app.post("/suppliers", async (req, res) => {
+router.post("/suppliers", async (req, res) => {
   await connectToDatabase();
   try {
     const supplier = new Supplier(req.body);
@@ -124,7 +127,7 @@ app.post("/suppliers", async (req, res) => {
   }
 });
 
-app.get("/suppliers", async (req, res) => {
+router.get("/suppliers", async (req, res) => {
   await connectToDatabase();
   try {
     const suppliers = await Supplier.find();
@@ -134,9 +137,8 @@ app.get("/suppliers", async (req, res) => {
   }
 });
 
-
 // --- CATEGORIES ---
-app.get("/categories", async (req, res) => {
+router.get("/categories", async (req, res) => {
   await connectToDatabase();
   try {
     const categories = await Item.distinct("category");
@@ -146,8 +148,8 @@ app.get("/categories", async (req, res) => {
   }
 });
 
-// --- INVENTORY SUMMARY / REPORTS ---
-app.get("/reports/inventory", async (req, res) => {
+// --- REPORTS ---
+router.get("/reports/inventory", async (req, res) => {
   await connectToDatabase();
   try {
     const items = await Item.find().populate("supplier");
@@ -161,7 +163,7 @@ app.get("/reports/inventory", async (req, res) => {
       if (!byCategory[item.category]) {
         byCategory[item.category] = { count: 0, totalStock: 0, totalValue: 0 };
       }
-      byCategory[item.category].count += 1;
+      byCategory[item.category].count++;
       byCategory[item.category].totalStock += item.stock;
       byCategory[item.category].totalValue += item.stock * item.price;
     });
@@ -188,13 +190,22 @@ app.get("/reports/inventory", async (req, res) => {
   }
 });
 
-//===========================
-// Localhost
-//===========================
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Local server running on http://localhost:${PORT}`));
+// ===========================
+// Mount router at /api/v1
+// ===========================
+app.use("/api/v1", router);
 
-//===========================
-// Export app for Vercel serverless
-//===========================
+// ===========================
+// Localhost (Optional - not used on Vercel)
+// ===========================
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () =>
+    console.log(`🚀 Local server running on http://localhost:${PORT}`)
+  );
+}
+
+// ===========================
+// Export for Vercel
+// ===========================
 module.exports = app;
