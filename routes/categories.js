@@ -30,6 +30,17 @@ router.put("/:id", async (req, res) => {
     }
 });
 
+// GET category by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+    if (!category) return res.status(404).json({ message: "Category not found" });
+    res.json(category);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 // DELETE category
 router.delete("/:id", async (req, res) => {
     await Category.findByIdAndDelete(req.params.id);
