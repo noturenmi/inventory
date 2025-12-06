@@ -14,15 +14,7 @@ dotenv.config();
 const app = express();
 
 // Middlewares
-app.use(cors({
-    origin: [
-        "https://app.swaggerhub.com",
-        "https://virtserver.swaggerhub.com",
-        "https://zentiels-inventory.vercel.app",
-        "http://localhost:3000"
-    ],
-    methods: "GET,POST,PUT,PATCH,DELETE"
-}));
+app.use(cors());
 app.use(express.json());
 
 // MongoDB connection
