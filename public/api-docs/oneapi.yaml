@@ -1,0 +1,337 @@
+openapi: 3.0.4
+info:
+  title: Inventory API
+  description: API for managing inventory, categories, items, and suppliers.
+  version: 1.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/newerauniversity-672/InventoryAPI/1.0.0
+  - url: http://localhost:3000
+    description: Local server
+  - url: https://zentiels-inventory.vercel.app
+    description: Production server
+
+tags:
+  - name: Categories
+    description: CRUD operations for product categories
+  - name: Items
+    description: CRUD operations for inventory items
+  - name: Suppliers
+    description: CRUD operations for suppliers
+
+paths:
+  # ------------------- Categories -------------------
+  /api/categories:
+    get:
+      tags: [Categories]
+      summary: Get all categories
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+    post:
+      tags: [Categories]
+      summary: Create a new category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+
+  /api/categories/{id}:
+    get:
+      tags: [Categories]
+      summary: Get a category by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '404':
+          description: Category not found
+    put:
+      tags: [Categories]
+      summary: Update a category by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        '200':
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '404':
+          description: Category not found
+    delete:
+      tags: [Categories]
+      summary: Delete a category by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category deleted
+
+  # ------------------- Items -------------------
+  /api/items:
+    get:
+      tags: [Items]
+      summary: Get all inventory items
+      responses:
+        '200':
+          description: List of items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+    post:
+      tags: [Items]
+      summary: Create a new inventory item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '201':
+          description: Item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+
+  /api/items/{id}:
+    get:
+      tags: [Items]
+      summary: Get an item by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Item found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '404':
+          description: Item not found
+    put:
+      tags: [Items]
+      summary: Update an item by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '200':
+          description: Item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '404':
+          description: Item not found
+    delete:
+      tags: [Items]
+      summary: Delete an item by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Item deleted
+
+  # ------------------- Suppliers -------------------
+  /api/suppliers:
+    get:
+      tags: [Suppliers]
+      summary: Get all suppliers
+      responses:
+        '200':
+          description: List of suppliers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Supplier'
+    post:
+      tags: [Suppliers]
+      summary: Create a new supplier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Supplier'
+      responses:
+        '201':
+          description: Supplier created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+
+  /api/suppliers/{id}:
+    get:
+      tags: [Suppliers]
+      summary: Get a supplier by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Supplier found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '404':
+          description: Supplier not found
+    put:
+      tags: [Suppliers]
+      summary: Update a supplier by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Supplier'
+      responses:
+        '200':
+          description: Supplier updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '404':
+          description: Supplier not found
+    delete:
+      tags: [Suppliers]
+      summary: Delete a supplier by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Supplier deleted
+
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 64a6c3b3e4f3b4f00123abcd
+        name:
+          type: string
+          example: Electronics
+      required: [name]
+
+    Item:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 64a6c3b3e4f3b4f00123efgh
+        name:
+          type: string
+          example: Laptop
+        categoryId:
+          type: string
+          example: 64a6c3b3e4f3b4f00123abcd
+        quantity:
+          type: integer
+          example: 50
+        price:
+          type: number
+          format: float
+          example: 1200.5
+        description:
+          type: string
+          example: High performance laptop
+      required: [name, categoryId, quantity, price]
+
+    Supplier:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 64a6c3b3e4f3b4f00123ijkl
+        name:
+          type: string
+          example: Tech Supplies Inc
+        email:
+          type: string
+          example: supplier@tech.com
+        phone:
+          type: string
+          example: "+1234567890"
+      required: [name, email]
