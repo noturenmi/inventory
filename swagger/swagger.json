@@ -58,7 +58,7 @@
         "responses": { "200": { "description": "Item details" } }
       },
       "paths": {
-    "/api/v1/test/{id}": {
+    "/api/v1/items/{id}": {
       "put": {
         "summary": "Test PUT",
         "parameters": [
