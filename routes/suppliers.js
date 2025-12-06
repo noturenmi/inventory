@@ -14,6 +14,17 @@ router.post("/", async (req, res) => {
     res.status(201).json(supplier);
 });
 
+// GET a supplier by ID
+router.get("/:id", async (req, res) => {
+    try {
+        const supplier = await Supplier.findById(req.params.id);
+        if (!supplier) return res.status(404).json({ message: "Supplier not found" });
+        res.json(supplier);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
 // PUT update a supplier by ID
 router.put("/:id", async (req, res) => {
     try {
