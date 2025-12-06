@@ -98,22 +98,6 @@ app.get("/", (req, res) => {
                         <li>POST /api/v1/suppliers</li>
                     </ul>
                 </div>
-
-                <div class="card">
-                    <h2>📦 Stock</h2>
-                    <ul>
-                        <li>GET /api/v1/stock/:itemId</li>
-                        <li>PATCH /api/v1/stock/:itemId</li>
-                    </ul>
-                </div>
-
-                <div class="card">
-                    <h2>📊 Reports</h2>
-                    <ul>
-                        <li><a href="/api/v1/reports/inventory">GET /api/v1/reports/inventory</a></li>
-                    </ul>
-                </div>
-
                 <div class="card">
                     <h2>📘 API Documentation</h2>
                     <ul>
