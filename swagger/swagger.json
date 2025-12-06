@@ -57,9 +57,10 @@
         ],
         "responses": { "200": { "description": "Item details" } }
       },
+      "paths": {
+    "/api/v1/test/{id}": {
       "put": {
-        "tags": ["Items"],
-        "summary": "Update item",
+        "summary": "Test PUT",
         "parameters": [
           {
             "name": "id",
@@ -76,16 +77,17 @@
                 "type": "object",
                 "properties": {
                   "name": { "type": "string" },
-                  "category": { "type": "string" },
-                  "supplier": { "type": "string" },
-                  "stock": { "type": "number" }
+                  "age": { "type": "number" }
                 }
               }
             }
           }
         },
-        "responses": { "200": { "description": "Item updated" } }
-      },
+        "responses": {
+          "200": { "description": "OK" }
+        }
+      }
+    },
       "delete": {
         "tags": ["Items"],
         "summary": "Delete item",
@@ -223,4 +225,5 @@
       }
     }
   }
+} 
 }
