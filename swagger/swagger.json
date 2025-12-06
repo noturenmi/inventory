@@ -223,7 +223,8 @@
           }
         },
         "responses": { "201": { "description": "Supplier created" } }
-      },
+      }
+    },  
       "/api/v1/suppliers/{id}": {
       "put": {
         "tags": ["Suppliers"],
@@ -269,5 +270,4 @@
       }
     }
   }
-}
 }
