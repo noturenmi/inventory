@@ -4,7 +4,6 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger/swagger.json");
-const fs = require("fs");
 const path = require("path");
 
 // Load environment variables
@@ -38,13 +37,10 @@ app.use("/api/v1/suppliers", require("./routes/suppliers"));
 // Swagger Documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Serve Swagger JSON at /swagger
-app.get("/swagger", (req, res) => {
+// Serve Swagger JSON
+app.get("/swagger.json", (req, res) => {
   res.sendFile(path.join(__dirname, "swagger", "swagger.json"));
 });
-
-// Serve Swagger UI and static files
-app.use("/swagger", express.static(path.join(__dirname, "swagger")));
 
 // ============================
 // DASHBOARD HOMEPAGE
@@ -107,6 +103,7 @@ app.get("/", (req, res) => {
                     <h2>📘 API Documentation</h2>
                     <ul>
                         <li><a href="/api-docs">Open Swagger UI</a></li>
+                        <li><a href="/swagger.json">View Swagger JSON</a></li>
                     </ul>
                 </div>
             </div>

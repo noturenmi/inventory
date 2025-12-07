@@ -34,21 +34,21 @@
                   "supplier": { "type": "string" },
                   "stock": { "type": "number" }
                 },
-                "required": ["name","category","supplier","stock"]
+                "required": ["name", "category", "supplier", "stock"]
               },
               "example": {
                 "name": "Keyboard",
                 "category": "Accessories",
                 "supplier": "Supplier A",
                 "stock": 100
+              }
             }
           }
         },
         "responses": { "201": { "description": "Item created" } }
       }
     },
-
-     "/api/v1/items/{id}": {
+    "/api/v1/items/{id}": {
       "get": {
         "tags": ["Items"],
         "summary": "Get item by ID",
@@ -57,12 +57,12 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": {"type": "string"}
+            "schema": { "type": "string" }
           }
         ],
         "responses": { "200": { "description": "Item details" } }
       },
-        "put": {
+      "put": {
         "tags": ["Items"],
         "summary": "Update an item",
         "parameters": [
@@ -84,9 +84,9 @@
                   "category": { "type": "string" },
                   "supplier": { "type": "string" },
                   "stock": { "type": "number" }
-                }
+                },
+                "required": ["name", "category", "supplier", "stock"]
               },
-              "required": ["name","category","supplier","stock"],
               "example": {
                 "name": "Updated Keyboard",
                 "category": "Accessories",
@@ -114,7 +114,6 @@
         "responses": { "200": { "description": "Item deleted" } }
       }
     },
-
     "/api/v1/categories": {
       "get": {
         "tags": ["Categories"],
@@ -146,7 +145,6 @@
         "responses": { "201": { "description": "Category created" } }
       }
     },
-
     "/api/v1/categories/{id}": {
       "get": {
         "tags": ["Categories"],
@@ -185,6 +183,7 @@
               },
               "example": {
                 "name": "Updated Category"
+              }
             }
           }
         },
@@ -204,7 +203,6 @@
         "responses": { "200": { "description": "Category deleted" } }
       }
     },
-
     "/api/v1/suppliers": {
       "get": {
         "tags": ["Suppliers"],
@@ -240,8 +238,8 @@
         },
         "responses": { "201": { "description": "Supplier created" } }
       }
-    },  
-      "/api/v1/suppliers/{id}": {
+    },
+    "/api/v1/suppliers/{id}": {
       "get": {
         "tags": ["Suppliers"],
         "summary": "Get supplier by ID",
@@ -283,6 +281,7 @@
                 "name": "Supplier X",
                 "phone": "123-456-7890",
                 "address": "123 Supplier St, City, Country"
+              }
             }
           }
         },
@@ -303,7 +302,4 @@
       }
     }
   }
-}
-}
-}
 }
