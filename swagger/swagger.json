@@ -1188,21 +1188,6 @@
             }
           }
         }
-      },
-      "ServerError": {
-        "description": "Internal server error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Error"
-            },
-            "example": {
-              "message": "Internal server error",
-              "error": "Database connection failed",
-              "statusCode": 500
-            }
-          }
-        }
       }
     },
     "securitySchemes": {
