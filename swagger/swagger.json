@@ -60,6 +60,8 @@
                 "$ref": "#/components/schemas/ItemInput"
               },
               "examples": {
+                "example1": {
+                  "value": {
                     "name": "Mechanical Keyboard",
                     "category": "String",
                     "supplier": "String",
@@ -70,7 +72,8 @@
                 }
               }
             }
-          },
+          }
+        },
         "responses": {
           "201": {
             "description": "Item created successfully",
@@ -675,11 +678,11 @@
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time",
+            "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
-            "format": "date-time",
+            "format": "date-time"
           }
         }
       },
@@ -754,7 +757,7 @@
             }
           },
           "isActive": {
-            "type": "boolean"
+            "type": "boolean",
             "example": true
           },
           "notes": {
