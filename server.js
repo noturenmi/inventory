@@ -1,211 +1,128 @@
-// ==============================
-// Inventory API (Vercel-Ready)
-// Node.js + Express + MongoDB Atlas
-// ==============================
-
-require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+const dotenv = require("dotenv");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger/swagger.json");
+const fs = require("fs");
+const path = require("path");
 
+// Load environment variables
+dotenv.config();
+
+// Initialize app
 const app = express();
+
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
-//===========================
-// MongoDB Connection (Optimized for Serverless)
-//===========================
-let isConnected = false;
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log("✅ MongoDB Connected"))
+    .catch(err => console.log("❌ MongoDB connection error:", err));
 
-async function connectToDatabase() {
-  if (isConnected) return;
+// ============================
+// ROUTES
+// ============================
 
-  try {
-    const db = await mongoose.connect(process.env.MONGO_URI);
-    isConnected = db.connections[0].readyState === 1;
-    console.log("📡 MongoDB Connected.");
-  } catch (err) {
-    console.error("❌ MongoDB Connection Error:", err);
-  }
-}
+// Items
+app.use("/api/v1/items", require("./routes/items"));
 
-//===========================
-// MODELS
-//===========================
-const supplierSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true },
-  contact: String,
-  phone: String,
-  email: String,
-  address: String,
-});
-const Supplier = mongoose.models.Supplier || mongoose.model("Supplier", supplierSchema);
+// Categories
+app.use("/api/v1/categories", require("./routes/categories"));
 
-const itemSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  category: { type: String, default: "General" },
-  stock: { type: Number, default: 0 },
-  price: { type: Number, default: 0 },
-  supplier: { type: mongoose.Schema.Types.ObjectId, ref: "Supplier" },
-});
-const Item = mongoose.models.Item || mongoose.model("Item", itemSchema);
+// Suppliers
+app.use("/api/v1/suppliers", require("./routes/suppliers"));
 
-// ===========================
-// API BASE ROUTER (/api/v1)
-// ===========================
-const router = express.Router();
+// Swagger Documentation
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// --- ROOT CHECK ---
-router.get("/", (req, res) => {
-  res.send("📦 Inventory API v1 is running!");
+// Serve Swagger JSON at /swagger
+app.get("/swagger", (req, res) => {
+  res.sendFile(path.join(__dirname, "swagger", "swagger.json"));
 });
 
-// --- ITEMS ---
-router.post("/items", async (req, res) => {
-  await connectToDatabase();
-  try {
-    const item = new Item(req.body);
-    await item.save();
-    res.status(201).json(item);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+// Serve Swagger UI and static files
+app.use("/swagger", express.static(path.join(__dirname, "swagger")));
+
+// ============================
+// DASHBOARD HOMEPAGE
+// ============================
+app.get("/", (req, res) => {
+    res.send(`
+        <html>
+        <head>
+            <title>Inventory API Dashboard</title>
+            <style>
+                body { font-family: Arial, sans-serif; background: #f4f6f9; margin:0; padding:0; }
+                header { background: #2d89ef; color: white; padding: 20px; text-align:center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
+                h1 { margin:0; font-size:28px; }
+                .container { max-width: 900px; margin:40px auto; padding:20px; }
+                .card { background:white; padding:20px; margin-bottom:20px; border-radius:10px; box-shadow:0 3px 8px rgba(0,0,0,0.1);}
+                .card h2 { color: #2d89ef; margin-top:0;}
+                ul { list-style:none; padding:0;}
+                li { padding:8px 0;}
+                a { color:#2d89ef; font-weight:600; text-decoration:none;}
+                a:hover { text-decoration:underline;}
+                footer { text-align:center; padding:20px; margin-top:40px; color:#777;}
+            </style>
+        </head>
+        <body>
+            <header>
+                <h1>📦 Inventory System API Dashboard</h1>
+                <p>View and test available API endpoints</p>
+            </header>
+
+            <div class="container">
+                <div class="card">
+                    <h2>📁 Items</h2>
+                    <ul>
+                        <li><a href="/api/v1/items">GET /api/v1/items</a></li>
+                        <li>POST /api/v1/items</li>
+                        <li>GET /api/v1/items/:id</li>
+                        <li>PUT /api/v1/items/:id</li>
+                        <li>PATCH /api/v1/items/:id</li>
+                        <li>DELETE /api/v1/items/:id</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2>📚 Categories</h2>
+                    <ul>
+                        <li><a href="/api/v1/categories">GET /api/v1/categories</a></li>
+                        <li>POST /api/v1/categories</li>
+                        <li>DELETE /api/v1/categories/:id</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2>🏭 Suppliers</h2>
+                    <ul>
+                        <li><a href="/api/v1/suppliers">GET /api/v1/suppliers</a></li>
+                        <li>POST /api/v1/suppliers</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h2>📘 API Documentation</h2>
+                    <ul>
+                        <li><a href="/api-docs">Open Swagger UI</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <footer>
+                Inventory API © ${new Date().getFullYear()}
+            </footer>
+        </body>
+        </html>
+    `);
 });
 
-router.get("/items", async (req, res) => {
-  await connectToDatabase();
-  try {
-    const items = await Item.find().populate("supplier");
-    res.json(items);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+// ============================
+// START SERVER
+// ============================
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
 
-router.get("/items/:id", async (req, res) => {
-  await connectToDatabase();
-  try {
-    const item = await Item.findById(req.params.id).populate("supplier");
-    if (!item) return res.status(404).json({ message: "Item not found" });
-    res.json(item);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-router.put("/items/:id", async (req, res) => {
-  await connectToDatabase();
-  try {
-    const item = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!item) return res.status(404).json({ message: "Item not found" });
-    res.json(item);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-router.delete("/items/:id", async (req, res) => {
-  await connectToDatabase();
-  try {
-    const item = await Item.findByIdAndDelete(req.params.id);
-    if (!item) return res.status(404).json({ message: "Item not found" });
-    res.json({ message: "Item deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// --- SUPPLIERS ---
-router.post("/suppliers", async (req, res) => {
-  await connectToDatabase();
-  try {
-    const supplier = new Supplier(req.body);
-    await supplier.save();
-    res.status(201).json(supplier);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-router.get("/suppliers", async (req, res) => {
-  await connectToDatabase();
-  try {
-    const suppliers = await Supplier.find();
-    res.json(suppliers);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// --- CATEGORIES ---
-router.get("/categories", async (req, res) => {
-  await connectToDatabase();
-  try {
-    const categories = await Item.distinct("category");
-    res.json(categories);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// --- REPORTS ---
-router.get("/reports/inventory", async (req, res) => {
-  await connectToDatabase();
-  try {
-    const items = await Item.find().populate("supplier");
-
-    const totalItems = items.length;
-    const totalStock = items.reduce((sum, item) => sum + item.stock, 0);
-    const totalValue = items.reduce((sum, item) => sum + item.stock * item.price, 0);
-
-    const byCategory = {};
-    items.forEach(item => {
-      if (!byCategory[item.category]) {
-        byCategory[item.category] = { count: 0, totalStock: 0, totalValue: 0 };
-      }
-      byCategory[item.category].count++;
-      byCategory[item.category].totalStock += item.stock;
-      byCategory[item.category].totalValue += item.stock * item.price;
-    });
-
-    const categorySummary = Object.keys(byCategory).map(cat => ({
-      _id: cat,
-      count: byCategory[cat].count,
-      totalStock: byCategory[cat].totalStock,
-      totalValue: byCategory[cat].totalValue,
-    }));
-
-    const lowStock = items.filter(item => item.stock <= 5);
-
-    res.json({
-      totalItems,
-      totalStock,
-      totalValue,
-      byCategory: categorySummary,
-      lowStock,
-      lowStockThreshold: 5,
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// ===========================
-// Mount router at /api/v1
-// ===========================
-app.use("/api/v1", router);
-
-// ===========================
-// Localhost (Optional - not used on Vercel)
-// ===========================
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () =>
-    console.log(`🚀 Local server running on http://localhost:${PORT}`)
-  );
-}
-
-// ===========================
-// Export for Vercel
-// ===========================
 module.exports = app;
