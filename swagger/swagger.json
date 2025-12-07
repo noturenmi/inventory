@@ -268,16 +268,8 @@
                 "$ref": "#/components/schemas/CategoryInput"
               },
               "examples": {
-                "electronics": {
-                  "value": {
-                    "name": "Electronics",
-                    "description": "Electronic devices and components"
-                  }
-                },
-                "accessories": {
-                  "value": {
-                    "name": "Accessories",
-                    "description": "Computer and phone accessories"
+                    "name": "String",
+                    "description": "String"
                   }
                 }
               }

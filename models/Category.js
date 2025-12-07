@@ -31,10 +31,8 @@ const categorySchema = new mongoose.Schema({
   }
 });
 
-// Update the updatedAt field before saving
-categorySchema.pre("save", function(next) {
+categorySchema.pre("save", async function() {
   this.updatedAt = Date.now();
-  next();
 });
 
 module.exports = mongoose.model("Category", categorySchema);
