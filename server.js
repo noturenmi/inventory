@@ -21,6 +21,11 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ MongoDB Connected"))
     .catch(err => console.log("❌ MongoDB connection error:", err));
 
+// Import models
+require("./models/Item");
+require("./models/Category");
+require("./models/Supplier");
+
 // ============================
 // ROUTES
 // ============================

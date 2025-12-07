@@ -1,9 +1,78 @@
 const mongoose = require("mongoose");
 
-const SupplierSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    phone: { type: String },
-    address: { type: String }
+const supplierSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  contactPerson: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  email: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    match: [/^\S+@\S+\.\S+$/, "Please enter a valid email"]
+  },
+  phone: {
+    type: String,
+    trim: true,
+    required: true
+  },
+  address: {
+    street: { type: String, trim: true, default: "" },
+    city: { type: String, trim: true, default: "" },
+    state: { type: String, trim: true, default: "" },
+    zipCode: { type: String, trim: true, default: "" },
+    country: { type: String, trim: true, default: "" }
+  },
+  website: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  taxId: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  paymentTerms: {
+    type: String,
+    enum: ["net-15", "net-30", "net-60", "upon-receipt", "custom"],
+    default: "net-30"
+  },
+  rating: {
+    type: Number,
+    min: 0,
+    max: 5,
+    default: 0
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  notes: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
-module.exports = mongoose.model("Supplier", SupplierSchema);
+// Update the updatedAt field before saving
+supplierSchema.pre("save", function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+module.exports = mongoose.model("Supplier", supplierSchema);
