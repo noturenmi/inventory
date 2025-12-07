@@ -3,8 +3,21 @@
   "info": {
     "title": "Inventory System API",
     "version": "1.0.0",
-    "description": "API documentation for Inventory System"
+    "description": "API documentation for Inventory System",
+    "contact": {
+      "email": "support@inventory.com"
+    }
   },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.inventory.com",
+      "description": "Production server"
+    }
+  ],
   "tags": [
     { "name": "Items", "description": "Operations about inventory items" },
     { "name": "Categories", "description": "Operations about categories" },
@@ -15,62 +28,134 @@
       "get": {
         "tags": ["Items"],
         "summary": "Get all items",
+        "description": "Returns a list of all inventory items",
         "responses": {
-          "200": { "description": "List of items" }
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Item"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
         }
       },
       "post": {
         "tags": ["Items"],
         "summary": "Create a new item",
+        "description": "Add a new item to the inventory",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": { "type": "string" },
-                  "category": { "type": "string" },
-                  "supplier": { "type": "string" },
-                  "stock": { "type": "number" }
-                },
-                "required": ["name", "category", "supplier", "stock"]
+                "$ref": "#/components/schemas/ItemInput"
               },
-              "example": {
-                "name": "Keyboard",
-                "category": "Accessories",
-                "supplier": "Supplier A",
-                "stock": 100
+              "examples": {
+                "keyboard": {
+                  "value": {
+                    "name": "Mechanical Keyboard",
+                    "category": "65f8a1b2c3d4e5f6a7b8c9d0",
+                    "supplier": "65f8a1b2c3d4e5f6a7b8c9d1",
+                    "stock": 50,
+                    "price": 89.99,
+                    "description": "RGB mechanical gaming keyboard",
+                    "sku": "KB-MECH-001",
+                    "reorderLevel": 10
+                  }
+                },
+                "mouse": {
+                  "value": {
+                    "name": "Wireless Mouse",
+                    "category": "65f8a1b2c3d4e5f6a7b8c9d0",
+                    "supplier": "65f8a1b2c3d4e5f6a7b8c9d2",
+                    "stock": 100,
+                    "price": 29.99
+                  }
+                }
               }
             }
           }
         },
-        "responses": { "201": { "description": "Item created" } }
+        "responses": {
+          "201": {
+            "description": "Item created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
       }
     },
     "/api/v1/items/{id}": {
       "get": {
         "tags": ["Items"],
         "summary": "Get item by ID",
+        "description": "Returns a single item by its ID",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string",
+              "format": "objectid",
+              "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+            },
+            "description": "Item ID"
           }
         ],
-        "responses": { "200": { "description": "Item details" } }
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
       },
       "put": {
         "tags": ["Items"],
         "summary": "Update an item",
+        "description": "Update all fields of an existing item",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string",
+              "format": "objectid",
+              "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+            }
           }
         ],
         "requestBody": {
@@ -78,71 +163,209 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": { "type": "string" },
-                  "category": { "type": "string" },
-                  "supplier": { "type": "string" },
-                  "stock": { "type": "number" }
-                },
-                "required": ["name", "category", "supplier", "stock"]
+                "$ref": "#/components/schemas/ItemInput"
               },
               "example": {
-                "name": "Updated Keyboard",
-                "category": "Accessories",
-                "supplier": "Supplier C",
-                "stock": 50
+                "name": "Updated Keyboard Pro",
+                "category": "65f8a1b2c3d4e5f6a7b8c9d0",
+                "supplier": "65f8a1b2c3d4e5f6a7b8c9d3",
+                "stock": 75,
+                "price": 99.99,
+                "description": "Updated mechanical keyboard with RGB lighting",
+                "reorderLevel": 15
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Item updated" }
+          "200": {
+            "description": "Item updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
         }
       },
-      "delete": {
+      "patch": {
         "tags": ["Items"],
-        "summary": "Delete item",
+        "summary": "Partially update an item",
+        "description": "Update specific fields of an item",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string",
+              "format": "objectid",
+              "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+            }
           }
         ],
-        "responses": { "200": { "description": "Item deleted" } }
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemUpdate"
+              },
+              "example": {
+                "stock": 25,
+                "price": 79.99
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Items"],
+        "summary": "Delete item",
+        "description": "Delete an item from inventory",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectid",
+              "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Item deleted successfully"
+                    },
+                    "deletedItem": {
+                      "$ref": "#/components/schemas/Item"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
       }
     },
     "/api/v1/categories": {
       "get": {
         "tags": ["Categories"],
         "summary": "Get all categories",
+        "description": "Returns a list of all categories",
         "responses": {
-          "200": { "description": "List of categories" }
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
         }
       },
       "post": {
         "tags": ["Categories"],
         "summary": "Create category",
+        "description": "Create a new category",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": { "type": "string" }
-                },
-                "required": ["name"]
+                "$ref": "#/components/schemas/CategoryInput"
               },
-              "example": {
-                "name": "Electronics"
+              "examples": {
+                "electronics": {
+                  "value": {
+                    "name": "Electronics",
+                    "description": "Electronic devices and components"
+                  }
+                },
+                "accessories": {
+                  "value": {
+                    "name": "Accessories",
+                    "description": "Computer and phone accessories"
+                  }
+                }
               }
             }
           }
         },
-        "responses": { "201": { "description": "Category created" } }
+        "responses": {
+          "201": {
+            "description": "Category created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
       }
     },
     "/api/v1/categories/{id}": {
@@ -154,10 +377,31 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string",
+              "format": "objectid",
+              "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+            }
           }
         ],
-        "responses": { "200": { "description": "Category details" } }
+        "responses": {
+          "200": {
+            "description": "Category details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
       },
       "put": {
         "tags": ["Categories"],
@@ -167,7 +411,11 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string",
+              "format": "objectid",
+              "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+            }
           }
         ],
         "requestBody": {
@@ -175,19 +423,36 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": { "type": "string" }
-                },
-                "required": ["name"]
+                "$ref": "#/components/schemas/CategoryInput"
               },
               "example": {
-                "name": "Updated Category"
+                "name": "Updated Electronics Category",
+                "description": "Updated description for electronics"
               }
             }
           }
         },
-        "responses": { "200": { "description": "Category updated" } }
+        "responses": {
+          "200": {
+            "description": "Category updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
       },
       "delete": {
         "tags": ["Categories"],
@@ -197,10 +462,40 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string",
+              "format": "objectid",
+              "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+            }
           }
         ],
-        "responses": { "200": { "description": "Category deleted" } }
+        "responses": {
+          "200": {
+            "description": "Category deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Category deleted successfully"
+                    },
+                    "deletedCategory": {
+                      "$ref": "#/components/schemas/Category"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
       }
     },
     "/api/v1/suppliers": {
@@ -208,7 +503,22 @@
         "tags": ["Suppliers"],
         "summary": "Get all suppliers",
         "responses": {
-          "200": { "description": "List of suppliers" }
+          "200": {
+            "description": "List of suppliers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Supplier"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
         }
       },
       "post": {
@@ -219,24 +529,47 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": { "type": "string" },
-                  "contact": { "type": "string" },
-                  "phone": { "type": "string" },
-                  "address": { "type": "string" }
-                },
-                "required": ["name"]
+                "$ref": "#/components/schemas/SupplierInput"
               },
-              "example": {
-                "name": "Supplier Y",
-                "phone": "987-654-3210",
-                "address": "456 Supplier Ave, City, Country"
+              "examples": {
+                "supplierA": {
+                  "value": {
+                    "name": "Tech Supplies Inc.",
+                    "contactPerson": "John Doe",
+                    "email": "john@techsupplies.com",
+                    "phone": "+1-234-567-8900",
+                    "address": {
+                      "street": "123 Tech Street",
+                      "city": "San Francisco",
+                      "state": "CA",
+                      "zipCode": "94107",
+                      "country": "USA"
+                    },
+                    "website": "https://techsupplies.com"
+                  }
+                }
               }
             }
           }
         },
-        "responses": { "201": { "description": "Supplier created" } }
+        "responses": {
+          "201": {
+            "description": "Supplier created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Supplier"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
       }
     },
     "/api/v1/suppliers/{id}": {
@@ -248,10 +581,31 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string",
+              "format": "objectid",
+              "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+            }
           }
         ],
-        "responses": { "200": { "description": "Supplier details" } }
+        "responses": {
+          "200": {
+            "description": "Supplier details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Supplier"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
       },
       "put": {
         "tags": ["Suppliers"],
@@ -261,7 +615,11 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string",
+              "format": "objectid",
+              "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+            }
           }
         ],
         "requestBody": {
@@ -269,23 +627,45 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": { "type": "string" },
-                  "phone": { "type": "string" },
-                  "address": { "type": "string" }
-                },
-                "required": ["name"]
+                "$ref": "#/components/schemas/SupplierInput"
               },
               "example": {
-                "name": "Supplier X",
-                "phone": "123-456-7890",
-                "address": "123 Supplier St, City, Country"
+                "name": "Updated Supplier Corp",
+                "contactPerson": "Jane Smith",
+                "email": "jane@updatedsupplier.com",
+                "phone": "+1-987-654-3210",
+                "address": {
+                  "street": "456 Updated Ave",
+                  "city": "New York",
+                  "state": "NY",
+                  "zipCode": "10001",
+                  "country": "USA"
+                }
               }
             }
           }
         },
-        "responses": { "200": { "description": "Supplier updated" } }
+        "responses": {
+          "200": {
+            "description": "Supplier updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Supplier"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
       },
       "delete": {
         "tags": ["Suppliers"],
@@ -295,11 +675,547 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string",
+              "format": "objectid",
+              "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+            }
           }
         ],
-        "responses": { "200": { "description": "Supplier deleted" } }
+        "responses": {
+          "200": {
+            "description": "Supplier deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Supplier deleted successfully"
+                    },
+                    "deletedSupplier": {
+                      "$ref": "#/components/schemas/Supplier"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
       }
     }
-  }
+  },
+  "components": {
+    "schemas": {
+      "Item": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "format": "objectid",
+            "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+          },
+          "name": {
+            "type": "string",
+            "example": "Mechanical Keyboard"
+          },
+          "description": {
+            "type": "string",
+            "example": "RGB mechanical gaming keyboard"
+          },
+          "category": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "objectid",
+                "example": "65f8a1b2c3d4e5f6a7b8c9d1"
+              },
+              {
+                "$ref": "#/components/schemas/Category"
+              }
+            ]
+          },
+          "supplier": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "objectid",
+                "example": "65f8a1b2c3d4e5f6a7b8c9d2"
+              },
+              {
+                "$ref": "#/components/schemas/Supplier"
+              }
+            ]
+          },
+          "stock": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 50
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "example": 89.99
+          },
+          "sku": {
+            "type": "string",
+            "example": "KB-MECH-001"
+          },
+          "reorderLevel": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 10
+          },
+          "location": {
+            "type": "string",
+            "example": "Warehouse A, Shelf B3"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "discontinued", "out-of-stock", "low-stock"],
+            "example": "active"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-03-20T10:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-03-21T14:45:00Z"
+          }
+        }
+      },
+      "ItemInput": {
+        "type": "object",
+        "required": ["name", "category", "supplier", "stock"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "example": "Mechanical Keyboard"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "example": "RGB mechanical gaming keyboard"
+          },
+          "category": {
+            "type": "string",
+            "format": "objectid",
+            "example": "65f8a1b2c3d4e5f6a7b8c9d1"
+          },
+          "supplier": {
+            "type": "string",
+            "format": "objectid",
+            "example": "65f8a1b2c3d4e5f6a7b8c9d2"
+          },
+          "stock": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 50
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "example": 89.99
+          },
+          "sku": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "KB-MECH-001"
+          },
+          "reorderLevel": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 10
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Warehouse A, Shelf B3"
+          }
+        }
+      },
+      "ItemUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "category": {
+            "type": "string",
+            "format": "objectid"
+          },
+          "supplier": {
+            "type": "string",
+            "format": "objectid"
+          },
+          "stock": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0
+          },
+          "sku": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "reorderLevel": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "discontinued", "out-of-stock", "low-stock"]
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "format": "objectid",
+            "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+          },
+          "name": {
+            "type": "string",
+            "example": "Electronics"
+          },
+          "description": {
+            "type": "string",
+            "example": "Electronic devices and components"
+          },
+          "parentCategory": {
+            "type": "string",
+            "format": "objectid",
+            "nullable": true,
+            "example": null
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-03-20T10:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-03-21T14:45:00Z"
+          }
+        }
+      },
+      "CategoryInput": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "example": "Electronics"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Electronic devices and components"
+          },
+          "parentCategory": {
+            "type": "string",
+            "format": "objectid",
+            "nullable": true,
+            "example": null
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "Supplier": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "format": "objectid",
+            "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+          },
+          "name": {
+            "type": "string",
+            "example": "Tech Supplies Inc."
+          },
+          "contactPerson": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john@techsupplies.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+1-234-567-8900"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "website": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://techsupplies.com"
+          },
+          "taxId": {
+            "type": "string",
+            "example": "TAX-123456"
+          },
+          "paymentTerms": {
+            "type": "string",
+            "enum": ["net-15", "net-30", "net-60", "upon-receipt", "custom"],
+            "example": "net-30"
+          },
+          "rating": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5,
+            "example": 4.5
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "notes": {
+            "type": "string",
+            "example": "Reliable supplier for electronics"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-03-20T10:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-03-21T14:45:00Z"
+          }
+        }
+      },
+      "SupplierInput": {
+        "type": "object",
+        "required": ["name", "phone"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "example": "Tech Supplies Inc."
+          },
+          "contactPerson": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john@techsupplies.com"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "+1-234-567-8900"
+          },
+          "address": {
+            "$ref": "#/components/schemas/AddressInput"
+          },
+          "website": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://techsupplies.com"
+          },
+          "taxId": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "TAX-123456"
+          },
+          "paymentTerms": {
+            "type": "string",
+            "enum": ["net-15", "net-30", "net-60", "upon-receipt", "custom"],
+            "example": "net-30"
+          },
+          "rating": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5,
+            "example": 4.5
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 500,
+            "example": "Reliable supplier for electronics"
+          }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string",
+            "example": "123 Tech Street"
+          },
+          "city": {
+            "type": "string",
+            "example": "San Francisco"
+          },
+          "state": {
+            "type": "string",
+            "example": "CA"
+          },
+          "zipCode": {
+            "type": "string",
+            "example": "94107"
+          },
+          "country": {
+            "type": "string",
+            "example": "USA"
+          }
+        }
+      },
+      "AddressInput": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "123 Tech Street"
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "San Francisco"
+          },
+          "state": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "CA"
+          },
+          "zipCode": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "94107"
+          },
+          "country": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "USA"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Error description"
+          },
+          "error": {
+            "type": "string",
+            "example": "Detailed error information"
+          },
+          "statusCode": {
+            "type": "integer",
+            "example": 400
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad Request - Invalid input",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "message": "Validation failed",
+              "error": "Name is required",
+              "statusCode": 400
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "message": "Item not found",
+              "error": "No item with id 65f8a1b2c3d4e5f6a7b8c9d0",
+              "statusCode": 404
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "message": "Internal server error",
+              "error": "Database connection failed",
+              "statusCode": 500
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ]
 }
