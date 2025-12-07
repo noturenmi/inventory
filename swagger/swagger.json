@@ -60,7 +60,6 @@
                 "$ref": "#/components/schemas/ItemInput"
               },
               "examples": {
-                  "value": {
                     "name": "Mechanical Keyboard",
                     "category": "String",
                     "supplier": "String",
