@@ -14,7 +14,7 @@
       "description": "Development server"
     },
     {
-      "url": "https://api.inventory.com",
+      "url": "https://inventory-yjks.onrender.com",
       "description": "Production server"
     }
   ],
