@@ -32,27 +32,6 @@ const itemSchema = new mongoose.Schema({
     min: 0,
     default: 0
   },
-  sku: {
-    type: String,
-    unique: true,
-    trim: true,
-    sparse: true
-  },
-  reorderLevel: {
-    type: Number,
-    min: 0,
-    default: 10
-  },
-  location: {
-    type: String,
-    trim: true,
-    default: ""
-  },
-  status: {
-    type: String,
-    enum: ["active", "discontinued", "out-of-stock", "low-stock"],
-    default: "active"
-  },
   createdAt: {
     type: Date,
     default: Date.now

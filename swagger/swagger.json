@@ -63,22 +63,11 @@
                 "keyboard": {
                   "value": {
                     "name": "Mechanical Keyboard",
-                    "category": "65f8a1b2c3d4e5f6a7b8c9d0",
-                    "supplier": "65f8a1b2c3d4e5f6a7b8c9d1",
+                    "category": "String",
+                    "supplier": "String",
                     "stock": 50,
                     "price": 89.99,
-                    "description": "RGB mechanical gaming keyboard",
-                    "sku": "KB-MECH-001",
-                    "reorderLevel": 10
-                  }
-                },
-                "mouse": {
-                  "value": {
-                    "name": "Wireless Mouse",
-                    "category": "65f8a1b2c3d4e5f6a7b8c9d0",
-                    "supplier": "65f8a1b2c3d4e5f6a7b8c9d2",
-                    "stock": 100,
-                    "price": 29.99
+                    "description": "String"
                   }
                 }
               }
@@ -166,65 +155,12 @@
                 "$ref": "#/components/schemas/ItemInput"
               },
               "example": {
-                "name": "Updated Keyboard Pro",
-                "category": "65f8a1b2c3d4e5f6a7b8c9d0",
-                "supplier": "65f8a1b2c3d4e5f6a7b8c9d3",
+                "name": "Updated Item Name",
+                "category": "String",
+                "supplier": "String",
                 "stock": 75,
                 "price": 99.99,
-                "description": "Updated mechanical keyboard with RGB lighting",
-                "reorderLevel": 15
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Item updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Item"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/ServerError"
-          }
-        }
-      },
-      "patch": {
-        "tags": ["Items"],
-        "summary": "Partially update an item",
-        "description": "Update specific fields of an item",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "objectid",
-              "example": "65f8a1b2c3d4e5f6a7b8c9d0"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ItemUpdate"
-              },
-              "example": {
-                "stock": 25,
-                "price": 79.99
+                "description": "Updated mechanical keyboard with RGB lighting"
               }
             }
           }
