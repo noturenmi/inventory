@@ -651,79 +651,35 @@
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string",
-            "format": "objectid",
-            "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+            "type": "string"
           },
           "name": {
-            "type": "string",
-            "example": "Mechanical Keyboard"
+            "type": "string"
           },
           "description": {
-            "type": "string",
-            "example": "RGB mechanical gaming keyboard"
+            "type": "string"
           },
           "category": {
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "objectid",
-                "example": "65f8a1b2c3d4e5f6a7b8c9d1"
-              },
-              {
-                "$ref": "#/components/schemas/Category"
-              }
-            ]
+            "type": "string"
           },
           "supplier": {
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "objectid",
-                "example": "65f8a1b2c3d4e5f6a7b8c9d2"
-              },
-              {
-                "$ref": "#/components/schemas/Supplier"
-              }
-            ]
+            "type": "string"
           },
           "stock": {
             "type": "integer",
-            "minimum": 0,
-            "example": 50
+            "minimum": 1
           },
           "price": {
             "type": "number",
-            "minimum": 0,
-            "example": 89.99
-          },
-          "sku": {
-            "type": "string",
-            "example": "KB-MECH-001"
-          },
-          "reorderLevel": {
-            "type": "integer",
-            "minimum": 0,
-            "example": 10
-          },
-          "location": {
-            "type": "string",
-            "example": "Warehouse A, Shelf B3"
-          },
-          "status": {
-            "type": "string",
-            "enum": ["active", "discontinued", "out-of-stock", "low-stock"],
-            "example": "active"
+            "minimum": 1
           },
           "createdAt": {
             "type": "string",
             "format": "date-time",
-            "example": "2024-03-20T10:30:00Z"
           },
           "updatedAt": {
             "type": "string",
             "format": "date-time",
-            "example": "2024-03-21T14:45:00Z"
           }
         }
       },
@@ -731,23 +687,18 @@
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string",
-            "format": "objectid",
-            "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+            "type": "string"
           },
           "name": {
-            "type": "string",
-            "example": "Electronics"
+            "type": "string"
           },
           "description": {
-            "type": "string",
-            "example": "Electronic devices and components"
+            "type": "string"
           },
           "parentCategory": {
             "type": "string",
             "format": "objectid",
-            "nullable": true,
-            "example": null
+            "nullable": true
           },
           "isActive": {
             "type": "boolean",
@@ -755,13 +706,11 @@
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time",
-            "example": "2024-03-20T10:30:00Z"
+            "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
-            "format": "date-time",
-            "example": "2024-03-21T14:45:00Z"
+            "format": "date-time"
           }
         }
       },
@@ -769,67 +718,55 @@
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string",
-            "format": "objectid",
-            "example": "65f8a1b2c3d4e5f6a7b8c9d0"
+            "type": "string"
           },
           "name": {
-            "type": "string",
-            "example": "Tech Supplies Inc."
+            "type": "string"
           },
           "contactPerson": {
-            "type": "string",
-            "example": "John Doe"
+            "type": "string"
           },
           "email": {
             "type": "string",
-            "format": "email",
-            "example": "john@techsupplies.com"
+            "format": "email"
           },
           "phone": {
-            "type": "string",
-            "example": "+1-234-567-8900"
+            "type": "string"
           },
           "address": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "website": {
-            "type": "string",
-            "format": "uri",
-            "example": "https://techsupplies.com"
-          },
-          "taxId": {
-            "type": "string",
-            "example": "TAX-123456"
-          },
-          "paymentTerms": {
-            "type": "string",
-            "enum": ["net-15", "net-30", "net-60", "upon-receipt", "custom"],
-            "example": "net-30"
-          },
-          "rating": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 5,
-            "example": 4.5
+            "type": "object",
+            "properties": {
+              "street": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string"
+              },
+              "zipCode": {
+                "type": "string"
+              },
+              "country": {
+                "type": "string"
+              }
+            }
           },
           "isActive": {
-            "type": "boolean",
+            "type": "boolean"
             "example": true
           },
           "notes": {
-            "type": "string",
-            "example": "Reliable supplier for electronics"
+            "type": "string"
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time",
-            "example": "2024-03-20T10:30:00Z"
+            "format": "date-time"
           },
           "updatedAt": {
             "type": "string",
-            "format": "date-time",
-            "example": "2024-03-21T14:45:00Z"
+            "format": "date-time"
           }
         }
       },
