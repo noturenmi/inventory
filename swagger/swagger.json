@@ -794,104 +794,6 @@
           }
         }
       },
-      "ItemInput": {
-        "type": "object",
-        "required": ["name", "category", "supplier", "stock"],
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100,
-            "example": "Mechanical Keyboard"
-          },
-          "description": {
-            "type": "string",
-            "maxLength": 500,
-            "example": "RGB mechanical gaming keyboard"
-          },
-          "category": {
-            "type": "string",
-            "format": "objectid",
-            "example": "65f8a1b2c3d4e5f6a7b8c9d1"
-          },
-          "supplier": {
-            "type": "string",
-            "format": "objectid",
-            "example": "65f8a1b2c3d4e5f6a7b8c9d2"
-          },
-          "stock": {
-            "type": "integer",
-            "minimum": 0,
-            "example": 50
-          },
-          "price": {
-            "type": "number",
-            "minimum": 0,
-            "example": 89.99
-          },
-          "sku": {
-            "type": "string",
-            "maxLength": 50,
-            "example": "KB-MECH-001"
-          },
-          "reorderLevel": {
-            "type": "integer",
-            "minimum": 0,
-            "example": 10
-          },
-          "location": {
-            "type": "string",
-            "maxLength": 100,
-            "example": "Warehouse A, Shelf B3"
-          }
-        }
-      },
-      "ItemUpdate": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100
-          },
-          "description": {
-            "type": "string",
-            "maxLength": 500
-          },
-          "category": {
-            "type": "string",
-            "format": "objectid"
-          },
-          "supplier": {
-            "type": "string",
-            "format": "objectid"
-          },
-          "stock": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "price": {
-            "type": "number",
-            "minimum": 0
-          },
-          "sku": {
-            "type": "string",
-            "maxLength": 50
-          },
-          "reorderLevel": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "location": {
-            "type": "string",
-            "maxLength": 100
-          },
-          "status": {
-            "type": "string",
-            "enum": ["active", "discontinued", "out-of-stock", "low-stock"]
-          }
-        }
-      },
       "Category": {
         "type": "object",
         "properties": {
@@ -927,33 +829,6 @@
             "type": "string",
             "format": "date-time",
             "example": "2024-03-21T14:45:00Z"
-          }
-        }
-      },
-      "CategoryInput": {
-        "type": "object",
-        "required": ["name"],
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 50,
-            "example": "Electronics"
-          },
-          "description": {
-            "type": "string",
-            "maxLength": 200,
-            "example": "Electronic devices and components"
-          },
-          "parentCategory": {
-            "type": "string",
-            "format": "objectid",
-            "nullable": true,
-            "example": null
-          },
-          "isActive": {
-            "type": "boolean",
-            "example": true
           }
         }
       },
@@ -1025,121 +900,6 @@
           }
         }
       },
-      "SupplierInput": {
-        "type": "object",
-        "required": ["name", "phone"],
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100,
-            "example": "Tech Supplies Inc."
-          },
-          "contactPerson": {
-            "type": "string",
-            "maxLength": 100,
-            "example": "John Doe"
-          },
-          "email": {
-            "type": "string",
-            "format": "email",
-            "example": "john@techsupplies.com"
-          },
-          "phone": {
-            "type": "string",
-            "maxLength": 20,
-            "example": "+1-234-567-8900"
-          },
-          "address": {
-            "$ref": "#/components/schemas/AddressInput"
-          },
-          "website": {
-            "type": "string",
-            "format": "uri",
-            "example": "https://techsupplies.com"
-          },
-          "taxId": {
-            "type": "string",
-            "maxLength": 50,
-            "example": "TAX-123456"
-          },
-          "paymentTerms": {
-            "type": "string",
-            "enum": ["net-15", "net-30", "net-60", "upon-receipt", "custom"],
-            "example": "net-30"
-          },
-          "rating": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 5,
-            "example": 4.5
-          },
-          "isActive": {
-            "type": "boolean",
-            "example": true
-          },
-          "notes": {
-            "type": "string",
-            "maxLength": 500,
-            "example": "Reliable supplier for electronics"
-          }
-        }
-      },
-      "Address": {
-        "type": "object",
-        "properties": {
-          "street": {
-            "type": "string",
-            "example": "123 Tech Street"
-          },
-          "city": {
-            "type": "string",
-            "example": "San Francisco"
-          },
-          "state": {
-            "type": "string",
-            "example": "CA"
-          },
-          "zipCode": {
-            "type": "string",
-            "example": "94107"
-          },
-          "country": {
-            "type": "string",
-            "example": "USA"
-          }
-        }
-      },
-      "AddressInput": {
-        "type": "object",
-        "properties": {
-          "street": {
-            "type": "string",
-            "maxLength": 100,
-            "example": "123 Tech Street"
-          },
-          "city": {
-            "type": "string",
-            "maxLength": 50,
-            "example": "San Francisco"
-          },
-          "state": {
-            "type": "string",
-            "maxLength": 50,
-            "example": "CA"
-          },
-          "zipCode": {
-            "type": "string",
-            "maxLength": 20,
-            "example": "94107"
-          },
-          "country": {
-            "type": "string",
-            "maxLength": 50,
-            "example": "USA"
-          }
-        }
-      },
       "Error": {
         "type": "object",
         "properties": {
@@ -1185,6 +945,21 @@
               "message": "Item not found",
               "error": "No item with id 65f8a1b2c3d4e5f6a7b8c9d0",
               "statusCode": 404
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "message": "Internal server error",
+              "error": "Database connection failed",
+              "statusCode": 500
             }
           }
         }
