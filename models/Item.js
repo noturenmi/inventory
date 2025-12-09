@@ -42,10 +42,8 @@ const itemSchema = new mongoose.Schema({
   }
 });
 
-// Update the updatedAt field before saving
-itemSchema.pre("save", function(next) {
+itemSchema.pre("save", async function() {
   this.updatedAt = Date.now();
-  next();
 });
 
 module.exports = mongoose.model("Item", itemSchema);
