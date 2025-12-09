@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 const Item = require("../models/Item");
 
 // GET all items (with optional population)
