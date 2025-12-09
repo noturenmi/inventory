@@ -12,13 +12,11 @@ const itemSchema = new mongoose.Schema({
     default: ""
   },
   category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Category",
+    type: String,  
     required: true
   },
   supplier: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Supplier",
+    type: String,
     required: true
   },
   stock: {

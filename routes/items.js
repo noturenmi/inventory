@@ -3,12 +3,10 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const Item = require("../models/Item");
 
-// GET all items (with optional population)
+// GET all items
 router.get("/", async (req, res) => {
     try {
-        const items = await Item.find()
-            .populate("category", "name description")
-            .populate("supplier", "name contactPerson phone");
+        const items = await Item.find();
         res.json(items);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -22,9 +20,7 @@ router.get("/:id", async (req, res) => {
             return res.status(400).json({ message: "Invalid item ID" });
         }
         
-        const item = await Item.findById(req.params.id)
-            .populate("category")
-            .populate("supplier");
+        const item = await Item.findById(req.params.id);
             
         if (!item) {
             return res.status(404).json({ message: "Item not found" });
@@ -39,58 +35,15 @@ router.get("/:id", async (req, res) => {
 // POST create new item
 router.post("/", async (req, res) => {
     try {
-        // Validate category and supplier IDs
-        const { category, supplier, ...itemData } = req.body;
-        
-        // Validate category ID
-        if (!mongoose.Types.ObjectId.isValid(category)) {
-            return res.status(400).json({ 
-                message: "Invalid category ID format",
-                field: "category" 
-            });
-        }
-        
-        // Validate supplier ID
-        if (!mongoose.Types.ObjectId.isValid(supplier)) {
-            return res.status(400).json({ 
-                message: "Invalid supplier ID format",
-                field: "supplier" 
-            });
-        }
-        
-        // Check if category exists
-        const categoryExists = await Category.findById(category);
-        if (!categoryExists) {
-            return res.status(404).json({ 
-                message: "Category not found",
-                field: "category" 
-            });
-        }
-        
-        // Check if supplier exists
-        const supplierExists = await Supplier.findById(supplier);
-        if (!supplierExists) {
-            return res.status(404).json({ 
-                message: "Supplier not found",
-                field: "supplier" 
-            });
-        }
+        // REMOVED: ObjectId validation for category and supplier
+        // Since your model now uses strings, not ObjectIds
         
         // Create new item
-        const newItem = new Item({
-            ...itemData,
-            category,
-            supplier
-        });
+        const newItem = new Item(req.body);
         
         const savedItem = await newItem.save();
-        
-        // Populate references before sending response
-        const populatedItem = await Item.findById(savedItem._id)
-            .populate("category")
-            .populate("supplier");
             
-        res.status(201).json(populatedItem);
+        res.status(201).json(savedItem);
     } catch (error) {
         if (error.name === "ValidationError") {
             const messages = Object.values(error.errors).map(val => val.message);
@@ -110,56 +63,13 @@ router.put("/:id", async (req, res) => {
             return res.status(400).json({ message: "Invalid item ID" });
         }
         
-        const { category, supplier, ...updateData } = req.body;
-        
-        // Validate category ID if provided
-        if (category && !mongoose.Types.ObjectId.isValid(category)) {
-            return res.status(400).json({ 
-                message: "Invalid category ID format",
-                field: "category" 
-            });
-        }
-        
-        // Validate supplier ID if provided
-        if (supplier && !mongoose.Types.ObjectId.isValid(supplier)) {
-            return res.status(400).json({ 
-                message: "Invalid supplier ID format",
-                field: "supplier" 
-            });
-        }
-        
-        // Check if category exists if provided
-        if (category) {
-            const categoryExists = await Category.findById(category);
-            if (!categoryExists) {
-                return res.status(404).json({ 
-                    message: "Category not found",
-                    field: "category" 
-                });
-            }
-        }
-        
-        // Check if supplier exists if provided
-        if (supplier) {
-            const supplierExists = await Supplier.findById(supplier);
-            if (!supplierExists) {
-                return res.status(404).json({ 
-                    message: "Supplier not found",
-                    field: "supplier" 
-                });
-            }
-        }
-        
-        // Prepare update object
-        const updateObj = { ...updateData };
-        if (category) updateObj.category = category;
-        if (supplier) updateObj.supplier = supplier;
+        // REMOVED: ObjectId validation for category and supplier
         
         const updatedItem = await Item.findByIdAndUpdate(
             req.params.id,
-            updateObj,
+            req.body,
             { new: true, runValidators: true }
-        ).populate("category").populate("supplier");
+        );
         
         if (!updatedItem) {
             return res.status(404).json({ message: "Item not found" });
@@ -185,9 +95,7 @@ router.delete("/:id", async (req, res) => {
             return res.status(400).json({ message: "Invalid item ID" });
         }
         
-        const deletedItem = await Item.findByIdAndDelete(req.params.id)
-            .populate("category")
-            .populate("supplier");
+        const deletedItem = await Item.findByIdAndDelete(req.params.id);
             
         if (!deletedItem) {
             return res.status(404).json({ message: "Item not found" });
@@ -201,6 +109,5 @@ router.delete("/:id", async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
-
 
 module.exports = router;
