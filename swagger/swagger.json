@@ -56,9 +56,6 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ItemInput"
-              },
               "examples": {
                 "example 1": {
                   "value": {
@@ -264,9 +261,6 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CategoryInput"
-              },
               "examples": {
                 "example 1": {
                   "value": {
@@ -458,9 +452,6 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SupplierInput"
-              },
               "examples": {
                 "supplierA": {
                   "value": {
