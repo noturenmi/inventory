@@ -71,41 +71,45 @@ app.get("/", (req, res) => {
         </head>
         <body>
             <header>
-                <h1>📦 Inventory System API Dashboard</h1>
+                <h1>Inventory System API Dashboard</h1>
                 <p>View and test available API endpoints</p>
             </header>
 
             <div class="container">
                 <div class="card">
-                    <h2>📁 Items</h2>
+                    <h2>Items</h2>
                     <ul>
                         <li><a href="/api/v1/items">GET /api/v1/items</a></li>
                         <li>POST /api/v1/items</li>
                         <li>GET /api/v1/items/:id</li>
                         <li>PUT /api/v1/items/:id</li>
-                        <li>PATCH /api/v1/items/:id</li>
                         <li>DELETE /api/v1/items/:id</li>
                     </ul>
                 </div>
 
                 <div class="card">
-                    <h2>📚 Categories</h2>
+                    <h2>Categories</h2>
                     <ul>
                         <li><a href="/api/v1/categories">GET /api/v1/categories</a></li>
                         <li>POST /api/v1/categories</li>
+                        <li>GET /api/v1/categories/:id</li>
+                        <li>PUT /api/v1/categories/:id</li>
                         <li>DELETE /api/v1/categories/:id</li>
                     </ul>
                 </div>
 
                 <div class="card">
-                    <h2>🏭 Suppliers</h2>
+                    <h2>Suppliers</h2>
                     <ul>
                         <li><a href="/api/v1/suppliers">GET /api/v1/suppliers</a></li>
                         <li>POST /api/v1/suppliers</li>
+                        <li>GET /api/v1/suppliers/:id</li>
+                        <li>PUT /api/v1/suppliers/:id</li>
+                        <li>DELETE /api/v1/suppliers/:id</li>
                     </ul>
                 </div>
                 <div class="card">
-                    <h2>📘 API Documentation</h2>
+                    <h2>API Documentation</h2>
                     <ul>
                         <li><a href="/api-docs">Open Swagger UI</a></li>
                         <li><a href="/swagger.json">View Swagger JSON</a></li>
