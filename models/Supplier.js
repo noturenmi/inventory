@@ -69,8 +69,6 @@ const supplierSchema = new mongoose.Schema({
   }
 });
 
-// FIXED: Update the updatedAt field before saving
-// Option 1: Using async/await (recommended)
 supplierSchema.pre("save", async function() {
   this.updatedAt = Date.now();
 });

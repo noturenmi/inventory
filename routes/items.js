@@ -35,10 +35,6 @@ router.get("/:id", async (req, res) => {
 // POST create new item
 router.post("/", async (req, res) => {
     try {
-        // REMOVED: ObjectId validation for category and supplier
-        // Since your model now uses strings, not ObjectIds
-        
-        // Create new item
         const newItem = new Item(req.body);
         
         const savedItem = await newItem.save();
@@ -62,8 +58,6 @@ router.put("/:id", async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ message: "Invalid item ID" });
         }
-        
-        // REMOVED: ObjectId validation for category and supplier
         
         const updatedItem = await Item.findByIdAndUpdate(
             req.params.id,
