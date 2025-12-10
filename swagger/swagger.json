@@ -56,6 +56,9 @@
           "required": true,
           "content": {
             "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Item"
+              },
               "examples": {
                 "example 1": {
                   "value": {
@@ -149,7 +152,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ItemInput"
+                "$ref": "#/components/schemas/Item"
               },
               "example": {
                 "name": "Updated Item Name",
@@ -261,6 +264,9 @@
           "required": true,
           "content": {
             "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Category"
+              },
               "examples": {
                 "example 1": {
                   "value": {
@@ -347,7 +353,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CategoryInput"
+                "$ref": "#/components/schemas/Category"
               },
               "example": {
                 "name": "Updated Electronics Category",
@@ -452,6 +458,9 @@
           "required": true,
           "content": {
             "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Supplier"
+              },
               "examples": {
                 "supplierA": {
                   "value": {
@@ -548,7 +557,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SupplierInput"
+                "$ref": "#/components/schemas/Supplier"
               },
               "example": {
                 "name": "Updated Supplier Corp",
