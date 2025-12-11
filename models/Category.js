@@ -12,15 +12,6 @@ const categorySchema = new mongoose.Schema({
     trim: true,
     default: ""
   },
-  parentCategory: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Category",
-    default: null
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
   createdAt: {
     type: Date,
     default: Date.now
