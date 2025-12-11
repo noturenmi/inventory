@@ -741,13 +741,6 @@
               }
             }
           },
-          "isActive": {
-            "type": "boolean",
-            "example": true
-          },
-          "notes": {
-            "type": "string"
-          },
           "createdAt": {
             "type": "string",
             "format": "date-time"

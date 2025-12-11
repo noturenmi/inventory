@@ -34,31 +34,6 @@ const supplierSchema = new mongoose.Schema({
     trim: true,
     default: ""
   },
-  taxId: {
-    type: String,
-    trim: true,
-    default: ""
-  },
-  paymentTerms: {
-    type: String,
-    enum: ["net-15", "net-30", "net-60", "upon-receipt", "custom"],
-    default: "net-30"
-  },
-  rating: {
-    type: Number,
-    min: 0,
-    max: 5,
-    default: 0
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  notes: {
-    type: String,
-    trim: true,
-    default: ""
-  },
   createdAt: {
     type: Date,
     default: Date.now
